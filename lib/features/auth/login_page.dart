@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../home/home_page.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -120,7 +121,14 @@ class LoginPage extends StatelessWidget {
                           width: double.infinity,
                           height: 60,
                           child: ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => HomePage(),
+                                ),
+                              );
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xffFF8A00),
                               foregroundColor: Colors.black,
@@ -154,7 +162,7 @@ class LoginPage extends StatelessWidget {
                             CircleAvatar(
                               radius: 35,
                               backgroundColor: const Color(0xffFFE8C6),
-                              child: Icon(Icons.g_mobiledata,size: 36,)
+                              child: Icon(Icons.g_mobiledata, size: 36),
                             ),
 
                             const SizedBox(width: 28),
