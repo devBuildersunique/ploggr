@@ -6,7 +6,7 @@ import 'package:ploggr/features/auth/login_page.dart';
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
   @override
-  State<StatefulWidget> createState() => _SplashScreenState();
+  State<SplashScreen> createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen> {
@@ -16,9 +16,8 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    // Pre-build LoginPage's widget tree ahead of time so its first-frame
-    // cost (ClipPath layout, TextFields, etc.) isn't paid during the
-    // transition animation itself.
+    // Pre-cache the splash logo so the first paint doesn't jank while the image
+    // is decoded/uploaded to the GPU.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       precacheImage(const AssetImage("assets/images/image.png"), context);
     });
