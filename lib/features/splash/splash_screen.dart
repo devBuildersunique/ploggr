@@ -10,6 +10,8 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  static const String _logoAssetPath = "assets/images/splash_logo/image.png";
+
   Timer? _timer;
 
   @override
@@ -19,7 +21,8 @@ class _SplashScreenState extends State<SplashScreen> {
     // Pre-cache the splash logo so the first paint doesn't jank while the image
     // is decoded/uploaded to the GPU.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      precacheImage(const AssetImage("assets/images/image.png"), context);
+      if (!mounted) return;
+      precacheImage(const AssetImage(_logoAssetPath), context);
     });
 
     _timer = Timer(const Duration(seconds: 3), () {
