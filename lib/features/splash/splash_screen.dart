@@ -13,17 +13,11 @@ class _SplashScreenState extends State<SplashScreen> {
   static const String _logoAssetPath = "assets/images/splash_logo/image.png";
 
   Timer? _timer;
+  bool _didPrecacheLogo = false;
 
   @override
   void initState() {
     super.initState();
-
-    // Pre-cache the splash logo so the first paint doesn't jank while the image
-    // is decoded/uploaded to the GPU.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      precacheImage(const AssetImage(_logoAssetPath), context);
-    });
 
     _timer = Timer(const Duration(seconds: 3), () {
       if (!mounted) return;
@@ -40,14 +34,20 @@ class _SplashScreenState extends State<SplashScreen> {
               curve: Curves.easeOut,
             );
 
-            return FadeTransition(
-              opacity: curved,
-              child: child,
-            );
+            return FadeTransition(opacity: curved, child: child);
           },
         ),
       );
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (_didPrecacheLogo) return;
+    _didPrecacheLogo = true;
+    precacheImage(const AssetImage(_logoAssetPath), context).catchError((_) {});
   }
 
   @override
@@ -58,8 +58,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(child: Image.asset("assets/images/image.png")),
-    );
+    return Scaffold(body: Center(child: Image.asset(_logoAssetPath)));
   }
 }

@@ -1,30 +1,50 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:ploggr/main.dart';
+import 'package:ploggr/features/splash/splash_screen.dart';
+
+class _TestAssetBundle extends AssetBundle {
+  static final Uint8List _transparentPng = base64Decode(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO2Y7WQAAAAASUVORK5CYII=',
+  );
+  static final ByteData _emptyAssetManifest = const StandardMessageCodec()
+      .encodeMessage(<String, List<String>>{})!;
+
+  @override
+  Future<ByteData> load(String key) async {
+    if (key == 'AssetManifest.bin') {
+      return _emptyAssetManifest;
+    }
+
+    return ByteData.view(_transparentPng.buffer);
+  }
+
+  @override
+  Future<String> loadString(String key, {bool cache = true}) async {
+    throw UnimplementedError();
+  }
+}
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const PloggrApp());
-
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+  testWidgets('shows splash then navigates to login', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      DefaultAssetBundle(bundle: _TestAssetBundle(), child: const PloggrApp()),
+    );
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.byType(SplashScreen), findsOneWidget);
+    expect(find.byType(Image), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(ElevatedButton, 'Login'), findsOneWidget);
   });
 }
