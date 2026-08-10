@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ploggr/features/home/home_page.dart';
-import './features/auth/login_page.dart';
+import 'package:ploggr/features/splash/splash_screen.dart';
 // import '../';
 
 void main() {
@@ -14,7 +13,7 @@ class PloggrApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const LoginPage(),
+      home: const SplashScreen(),
       // home: const HomePage(),
     );
   }
