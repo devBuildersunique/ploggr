@@ -34,13 +34,13 @@ Planned features include:
 Clone the repository:
 
 ```bash
-git clone https://github.com/<your-username>/Ploggr.git
+git clone https://github.com/devBuildersunique/ploggr.git
 ```
 
 Navigate to the project:
 
 ```bash
-cd Ploggr
+cd ploggr
 ```
 
 Install dependencies:
