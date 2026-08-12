@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ploggr/features/home/end_session_1.dart';
+import 'package:ploggr/features/home/in_session.dart';
 
 // ---- Palette -------------------------------------------------------------
 const kOrange = Color(0xFFF7941D);
@@ -502,7 +502,7 @@ class _StartPloggingButton extends StatelessWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => EndSessionPage()),
+            MaterialPageRoute(builder: (context) =>const InSessionPage()),
           );
         },
         style: ElevatedButton.styleFrom(

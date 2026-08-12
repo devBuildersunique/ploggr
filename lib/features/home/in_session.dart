@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:ploggr/features/home/end_session.dart' as temp;
+import 'package:ploggr/features/home/end_session.dart';
 
-class EndSessionPage extends StatelessWidget {
-  const EndSessionPage({super.key});
+class InSessionPage extends StatelessWidget {
+  const InSessionPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -165,7 +165,7 @@ class EndSessionPage extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => temp.EndSessionPage(),
+                                  builder: (context) => const EndSessionPage(),
                                 ),
                               );
                             },
