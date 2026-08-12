@@ -18,3 +18,8 @@ class PloggrApp extends StatelessWidget {
     );
   }
 }
+
+// Version system
+// major change:: 0.23
+// minor + hotfix :: 0.23.x
+// 1. major major change
