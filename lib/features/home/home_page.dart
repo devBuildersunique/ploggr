@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:ploggr/features/home/in_session.dart';
 
 // ---- Palette -------------------------------------------------------------
 const kOrange = Color(0xFFF7941D);
@@ -374,10 +374,7 @@ class _StatCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            label,
-            style: const TextStyle(fontSize: 13, color: kTextGrey),
-          ),
+          Text(label, style: const TextStyle(fontSize: 13, color: kTextGrey)),
         ],
       ),
     );
@@ -470,18 +467,18 @@ class _StreakCard extends StatelessWidget {
                     child: isDone
                         ? const Icon(Icons.check, color: Colors.white, size: 18)
                         : isToday
-                            ? const Icon(
-                                Icons.directions_run,
-                                color: kDeepBrown,
-                                size: 18,
-                              )
-                            : const Text(
-                                '-',
-                                style: TextStyle(
-                                  color: kTextGrey,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                        ? const Icon(
+                            Icons.directions_run,
+                            color: kDeepBrown,
+                            size: 18,
+                          )
+                        : const Text(
+                            '-',
+                            style: TextStyle(
+                              color: kTextGrey,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
                 ],
               );
@@ -502,7 +499,12 @@ class _StartPloggingButton extends StatelessWidget {
     return SizedBox(
       height: 58,
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) =>const InSessionPage()),
+          );
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: kDeepBrown,
           foregroundColor: Colors.white,

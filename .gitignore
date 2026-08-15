@@ -46,3 +46,6 @@ app.*.map.json
 
 planning/
 scripts/
+lib/features/auth/login_page_new.dart
+lib/features/auth/pages_list.dart
+# lib/features/auth/login_page_new.dart

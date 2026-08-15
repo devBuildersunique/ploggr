@@ -6,33 +6,49 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       backgroundColor: Colors.white,
 
       body: Stack(
         children: [
           /// Orange Shape
-          ClipPath(
-            clipper: OrangeClipper(),
-            child: Container(height: 320, color: const Color(0xffFF8A00)),
+          SizedBox(
+            width: double.infinity,
+            height: screenWidth * 0.8,
+            child: ClipPath(
+              clipper: OrangeClipper(),
+              child: Container(
+                width: double.infinity,
+                color: const Color(0xffFF8A00),
+              ),
+            ),
           ),
 
           /// Yellow Shape
-          ClipPath(
-            clipper: YellowClipper(),
-            child: Container(height: 230, color: const Color(0xffFFF84A)),
+          SizedBox(
+            width: double.infinity,
+            height: screenWidth * 0.58,
+            child: ClipPath(
+              clipper: YellowClipper(),
+              child: Container(
+                width: double.infinity,
+                color: const Color(0xffFFF84A),
+              ),
+            ),
           ),
 
           SafeArea(
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 40,
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenWidth * 0.05,
+                  vertical: screenWidth * 0.10,
                 ),
                 child: Column(
                   children: [
-                    const SizedBox(height: 170),
+                    SizedBox(height: screenWidth * 0.42),
 
                     const Text(
                       "Login",
@@ -49,7 +65,7 @@ class LoginPage extends StatelessWidget {
                       color: Colors.orange,
                     ),
 
-                    const SizedBox(height: 55),
+                    SizedBox(height: screenWidth * 0.14),
 
                     Column(
                       children: [
@@ -162,15 +178,18 @@ class LoginPage extends StatelessWidget {
                             CircleAvatar(
                               radius: 35,
                               backgroundColor: const Color(0xffFFE8C6),
-                              child: Icon(Icons.g_mobiledata, size: 36),
+                              child: const Icon(
+                                Icons.g_mobiledata,
+                                size: 36,
+                              ),
                             ),
 
                             const SizedBox(width: 28),
 
-                            CircleAvatar(
+                            const CircleAvatar(
                               radius: 35,
-                              backgroundColor: const Color(0xffFFE8C6),
-                              child: const Icon(
+                              backgroundColor: Color(0xffFFE8C6),
+                              child: Icon(
                                 Icons.mail,
                                 color: Colors.red,
                                 size: 38,
@@ -183,9 +202,14 @@ class LoginPage extends StatelessWidget {
 
                         RichText(
                           text: const TextSpan(
-                            style: TextStyle(color: Colors.black, fontSize: 18),
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 18,
+                            ),
                             children: [
-                              TextSpan(text: "Don’t have a account? "),
+                              TextSpan(
+                                text: "Don’t have a account? ",
+                              ),
                               TextSpan(
                                 text: "Sign up",
                                 style: TextStyle(
@@ -215,11 +239,8 @@ class OrangeClipper extends CustomClipper<Path> {
     Path path = Path();
 
     path.lineTo(0, size.height * 0.88);
-
     path.lineTo(size.width * 0.24, size.height);
-
     path.lineTo(size.width * 0.62, 0);
-
     path.close();
 
     return path;
@@ -235,13 +256,9 @@ class YellowClipper extends CustomClipper<Path> {
     Path path = Path();
 
     path.moveTo(size.width * 0.62, 0);
-
     path.lineTo(size.width, 0);
-
     path.lineTo(size.width, size.height * 0.60);
-
     path.lineTo(size.width * 0.38, size.height);
-
     path.close();
 
     return path;
@@ -250,3 +267,4 @@ class YellowClipper extends CustomClipper<Path> {
   @override
   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
+
