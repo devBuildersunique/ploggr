@@ -1,18 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:ploggr/features/auth/signup_page.dart';
-import 'package:ploggr/features/util/work_in_progress.dart';
-import '../home/home_page.dart';
 import 'package:flutter/gestures.dart';
+import 'package:ploggr/features/auth/login_page.dart';
+import 'package:ploggr/features/home/home_page.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
-
-  @override
-  State<LoginPage> createState() => _LoginPage();
-}
-
-class _LoginPage extends State<LoginPage> {
-  bool _obscurePassword = true;
+class SignupPage extends StatelessWidget {
+  const SignupPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +12,6 @@ class _LoginPage extends State<LoginPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-
       body: Stack(
         children: [
           /// Orange Shape
@@ -53,91 +44,66 @@ class _LoginPage extends State<LoginPage> {
             child: SingleChildScrollView(
               child: Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: screenWidth * 0.05,
+                  horizontal: screenWidth * 0.10, // Slightly increased padding for the form
                   vertical: screenWidth * 0.10,
                 ),
                 child: Column(
                   children: [
                     SizedBox(height: screenWidth * 0.42),
 
+                    // Title
                     const Text(
-                      "Login",
+                      "Sign Up",
                       style: TextStyle(
                         fontSize: 42,
                         fontWeight: FontWeight.bold,
+                        color: Colors.black,
                       ),
                     ),
 
+                    // Underline
                     Container(
                       margin: const EdgeInsets.only(top: 6),
-                      width: 90,
+                      width: 100,
                       height: 3,
                       color: Colors.orange,
                     ),
 
-                    SizedBox(height: screenWidth * 0.14),
+                    SizedBox(height: screenWidth * 0.10),
 
+                    // Form Fields
                     Column(
                       children: [
-                        // TextField(
-                        //   decoration: InputDecoration(
-                        //     hintText: "Username",
-                        //     hintStyle: const TextStyle(
-                        //       color: Colors.grey,
-                        //       fontSize: 22,
-                        //     ),
-                        //     suffixIcon: const Icon(
-                        //       Icons.account_circle_outlined,
-                        //       color: Colors.black,
-                        //     ),
-                        //     enabledBorder: const UnderlineInputBorder(
-                        //       borderSide: BorderSide(color: Colors.black),
-                        //     ),
-                        //     focusedBorder: const UnderlineInputBorder(
-                        //       borderSide: BorderSide(
-                        //         color: Colors.orange,
-                        //         width: 2,
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ),
-
                         _buildTextField(
-                          hintText: "Username",
+                          hintText: "Username - x23407",
                           icon: Icons.account_circle,
                         ),
-
-                        const SizedBox(height: 10),
-
+                        const SizedBox(height: 20),
+                        _buildTextField(
+                          hintText: "Real Name - John",
+                          icon: Icons.badge,
+                        ),
+                        const SizedBox(height: 20),
+                        _buildTextField(
+                          hintText: "Email id",
+                          icon: Icons.mail_outline,
+                        ),
+                        const SizedBox(height: 20),
                         _buildTextField(
                           hintText: "Password",
+                          icon: Icons.visibility_outlined,
                           isPassword: true,
-                          obscureText: _obscurePassword,
-                          onToggleVisibility: () {
-                            setState(() => _obscurePassword = !_obscurePassword);
-                          },
                         ),
-
-                        const SizedBox(height: 10),
-
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: TextButton(
-                            onPressed: () => {
-                              showWipPopup(context, title: "WIP", description: "Need to add")
-                            },
-                            child: Text(
-                              "Forget Password?",
-                              style: TextStyle(
-                                color: Colors.grey.shade400,
-                                fontSize: 18,
-                              ),
-                            ),
-                          ),
+                        const SizedBox(height: 20),
+                        _buildTextField(
+                          hintText: "Confirm Password",
+                          icon: Icons.visibility_outlined,
+                          isPassword: true,
                         ),
 
                         const SizedBox(height: 45),
 
+                        // Sign Up Button
                         SizedBox(
                           width: double.infinity,
                           height: 60,
@@ -145,9 +111,7 @@ class _LoginPage extends State<LoginPage> {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (context) => HomePage(),
-                                ),
+                                MaterialPageRoute(builder: (context) => const SignupPage()),
                               );
                             },
                             style: ElevatedButton.styleFrom(
@@ -159,68 +123,24 @@ class _LoginPage extends State<LoginPage> {
                               ),
                             ),
                             child: const Text(
-                              "Login",
+                              "Sign Up",
                               style: TextStyle(
-                                fontSize: 28,
+                                fontSize: 24,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
                         ),
 
-                        const SizedBox(height: 25),
+                        const SizedBox(height: 30),
+                        SignUpFooter()
 
-                        const Text(
-                          "or Login with",
-                          style: TextStyle(fontSize: 20),
-                        ),
-
-                        const SizedBox(height: 25),
-
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            TextButton(
-                              onPressed: () => showCustomMessage(
-                                context,
-                                title: "NOT IMPLEMNTED",
-                                description: "Waiting for the backend",
-                              ),
-                              child: CircleAvatar(
-                                radius: 35,
-                                backgroundColor: const Color(0xffFFE8C6),
-                                child: const Icon(Icons.g_mobiledata, size: 36),
-                              ),
-                            ),
-
-                            const SizedBox(width: 28),
-
-                            TextButton(
-                              onPressed: () => showCustomMessage(context,
-                               title: "Not Implemented",
-                               description: "Waiting for the backend"),
-                              child: const CircleAvatar(
-                                radius: 35,
-                                backgroundColor: Color(0xffFFE8C6),
-                                child: Icon(
-                                  Icons.mail,
-                                  color: Colors.red,
-                                  size: 38,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 45),
-
-                        SignUpFooter(),
-
+                        // Bottom Text (Replicated exactly from the image)
                         // RichText(
                         //   text: const TextSpan(
                         //     style: TextStyle(
-                        //       color: Colors.black,
-                        //       fontSize: 18,
+                        //       color: Colors.lightBlue,
+                        //       fontSize: 16,
                         //     ),
                         //     children: [
                         //       TextSpan(
@@ -229,7 +149,6 @@ class _LoginPage extends State<LoginPage> {
                         //       TextSpan(
                         //         text: "Sign up",
                         //         style: TextStyle(
-                        //           color: Colors.blue,
                         //           decoration: TextDecoration.underline,
                         //         ),
                         //       ),
@@ -248,48 +167,47 @@ class _LoginPage extends State<LoginPage> {
     );
   }
 
+  // Helper method to keep the code clean and avoid repeating TextField configurations
   Widget _buildTextField({
     required String hintText,
-    IconData icon = Icons.account_circle, // fallback for non-password fields
+    required IconData icon,
     bool isPassword = false,
-    bool obscureText = false,
-    VoidCallback? onToggleVisibility,
   }) {
     return TextField(
-      obscureText: isPassword ? obscureText : false,
+      obscureText: isPassword,
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: const TextStyle(color: Colors.grey, fontSize: 18),
-        suffixIcon: isPassword
-            ? IconButton(
-                icon: Icon(
-                  obscureText ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                  color: Colors.black,
-                ),
-                onPressed: onToggleVisibility,
-              )
-            : Icon(icon, color: Colors.black),
+        hintStyle: const TextStyle(
+          color: Colors.grey,
+          fontSize: 18,
+        ),
+        suffixIcon: Icon(
+          icon,
+          color: Colors.black,
+        ),
         enabledBorder: const UnderlineInputBorder(
           borderSide: BorderSide(color: Colors.black54),
         ),
         focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.orange, width: 2),
+          borderSide: BorderSide(
+            color: Colors.orange,
+            width: 2,
+          ),
         ),
       ),
     );
   }
 }
 
+// Retaining the Clippers from the original code
 class OrangeClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     Path path = Path();
-
     path.lineTo(0, size.height * 0.88);
     path.lineTo(size.width * 0.24, size.height);
     path.lineTo(size.width * 0.62, 0);
     path.close();
-
     return path;
   }
 
@@ -301,19 +219,18 @@ class YellowClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     Path path = Path();
-
     path.moveTo(size.width * 0.62, 0);
     path.lineTo(size.width, 0);
     path.lineTo(size.width, size.height * 0.60);
     path.lineTo(size.width * 0.38, size.height);
     path.close();
-
     return path;
   }
 
   @override
   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
+
 
 class SignUpFooter extends StatefulWidget {
   const SignUpFooter({super.key});
@@ -332,7 +249,7 @@ class _SignUpFooterState extends State<SignUpFooter> {
       ..onTap = () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const SignupPage()),
+          MaterialPageRoute(builder: (context) => const LoginPage()),
         );
       };
   }
@@ -347,12 +264,19 @@ class _SignUpFooterState extends State<SignUpFooter> {
   Widget build(BuildContext context) {
     return RichText(
       text: TextSpan(
-        style: const TextStyle(color: Colors.lightBlue, fontSize: 16),
+        style: const TextStyle(
+          color: Colors.lightBlue,
+          fontSize: 16,
+        ),
         children: [
-          const TextSpan(text: "Don't have a account? "),
+          const TextSpan(
+            text: "Don't have a account? ",
+          ),
           TextSpan(
-            text: "Sign up",
-            style: const TextStyle(decoration: TextDecoration.underline),
+            text: "Log In",
+            style: const TextStyle(
+              decoration: TextDecoration.underline,
+            ),
             recognizer: _signUpRecognizer,
           ),
         ],
