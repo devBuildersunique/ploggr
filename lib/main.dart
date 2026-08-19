@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:ploggr/features/home/home_page.dart';
 import 'package:ploggr/features/splash/splash_screen.dart';
+import 'package:ploggr/features/leaderboard/leaderboard_page.dart';
+// import 'lib';
 // import '../';
 
 void main() {
@@ -14,7 +17,7 @@ class PloggrApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: const SplashScreen(),
-      // home: const HomePage(),
+      // home: const LeaderboardPage(),
     );
   }
 }
