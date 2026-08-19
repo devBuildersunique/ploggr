@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ploggr/features/home/in_session.dart';
+import 'package:ploggr/features/util/bottom_navigation.dart';
 
 // ---- Palette -------------------------------------------------------------
 const kOrange = Color(0xFFF7941D);
@@ -49,7 +50,7 @@ class HomePage extends StatelessWidget {
                 ),
               ),
             ),
-            const _BottomNavBar(),
+            const BottomNavBar(caller: 'home'),
           ],
         ),
       ),
@@ -530,79 +531,79 @@ class _StartPloggingButton extends StatelessWidget {
 }
 
 // ---- Bottom nav bar -----------------------------------------------------
-class _BottomNavBar extends StatelessWidget {
-  const _BottomNavBar();
+// class _BottomNavBar extends StatelessWidget {
+//   const _BottomNavBar();
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: kCardBg,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 12,
-            offset: const Offset(0, -4),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: const [
-              _NavItem(icon: Icons.home_rounded, label: 'Home', selected: true),
-              _NavItem(icon: Icons.eco_outlined, label: 'Impact'),
-              _NavItem(icon: Icons.bar_chart_rounded, label: 'Rank'),
-              _NavItem(icon: Icons.person_outline_rounded, label: 'Profile'),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       decoration: BoxDecoration(
+//         color: kCardBg,
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withOpacity(0.06),
+//             blurRadius: 12,
+//             offset: const Offset(0, -4),
+//           ),
+//         ],
+//       ),
+//       child: SafeArea(
+//         top: false,
+//         child: Padding(
+//           padding: const EdgeInsets.symmetric(vertical: 10),
+//           child: Row(
+//             mainAxisAlignment: MainAxisAlignment.spaceAround,
+//             children: const [
+//               _NavItem(icon: Icons.home_rounded, label: 'Home', selected: true),
+//               _NavItem(icon: Icons.eco_outlined, label: 'Impact'),
+//               _NavItem(icon: Icons.bar_chart_rounded, label: 'Rank'),
+//               _NavItem(icon: Icons.person_outline_rounded, label: 'Profile'),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
 
-class _NavItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool selected;
+// class _NavItem extends StatelessWidget {
+//   final IconData icon;
+//   final String label;
+//   final bool selected;
 
-  const _NavItem({
-    required this.icon,
-    required this.label,
-    this.selected = false,
-  });
+//   const _NavItem({
+//     required this.icon,
+//     required this.label,
+//     this.selected = false,
+//   });
 
-  @override
-  Widget build(BuildContext context) {
-    final color = selected ? kOrange : kTextGrey;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (selected)
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: const BoxDecoration(
-              color: kOrange,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: Colors.white, size: 20),
-          )
-        else
-          Icon(icon, color: color, size: 24),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            color: color,
-            fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-          ),
-        ),
-      ],
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     final color = selected ? kOrange : kTextGrey;
+//     return Column(
+//       mainAxisSize: MainAxisSize.min,
+//       children: [
+//         if (selected)
+//           Container(
+//             padding: const EdgeInsets.all(10),
+//             decoration: const BoxDecoration(
+//               color: kOrange,
+//               shape: BoxShape.circle,
+//             ),
+//             child: Icon(icon, color: Colors.white, size: 20),
+//           )
+//         else
+//           Icon(icon, color: color, size: 24),
+//         const SizedBox(height: 4),
+//         Text(
+//           label,
+//           style: TextStyle(
+//             fontSize: 11,
+//             color: color,
+//             fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+// }
