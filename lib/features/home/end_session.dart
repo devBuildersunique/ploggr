@@ -64,7 +64,7 @@ class _EndSessionPageState extends State<EndSessionPage> {
     if (!mounted) return;
     setState(() => _isSubmitting = false);
     Navigator.of(context).maybePop();
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => HomePage()),
     );
