@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-
-
+import 'package:ploggr/features/home/home_page.dart';
 
 // class EndSessionApp extends StatelessWidget {
 //   const EndSessionApp({super.key});
@@ -65,6 +64,10 @@ class _EndSessionPageState extends State<EndSessionPage> {
     if (!mounted) return;
     setState(() => _isSubmitting = false);
     Navigator.of(context).maybePop();
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => HomePage()),
+    );
   }
 
   @override
@@ -392,7 +395,9 @@ class _DetectionSummaryCard extends StatelessWidget {
                         ),
                         const TextSpan(
                           text: 'Tap to flag.',
-                          style: TextStyle(decoration: TextDecoration.underline),
+                          style: TextStyle(
+                            decoration: TextDecoration.underline,
+                          ),
                         ),
                       ],
                     ),
@@ -572,8 +577,7 @@ class _ConfirmButton extends StatelessWidget {
                       height: 22,
                       child: CircularProgressIndicator(
                         strokeWidth: 2.4,
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(Colors.white),
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     ),
                   ),
