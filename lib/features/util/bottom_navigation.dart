@@ -39,7 +39,7 @@ class BottomNavBar extends StatelessWidget {
               _NavItem(
                 icon: Icons.home_rounded,
                 label: 'Home',
-                selected: this.caller == 'home',
+                selected: caller == 'home',
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
@@ -60,7 +60,7 @@ class BottomNavBar extends StatelessWidget {
               _NavItem(
                 icon: Icons.bar_chart_rounded,
                 label: 'Ranks',
-                selected: this.caller == 'ranks',
+                selected: caller == 'ranks',
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
