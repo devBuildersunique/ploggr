@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:ploggr/features/home/end_session.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:go_router/go_router.dart';
+import 'package:ploggr/routes/app_routes.dart';
 
 class InSessionPage extends StatelessWidget {
   const InSessionPage({super.key});
@@ -115,7 +116,7 @@ class InSessionPage extends StatelessWidget {
                                   width: 112,
                                   height: 112,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) {
+                                  errorBuilder: (_, _, _) {
                                     return Container(
                                       color: Colors.grey.shade300,
                                     );
@@ -162,12 +163,7 @@ class InSessionPage extends StatelessWidget {
                           height: 54,
                           child: ElevatedButton(
                             onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const EndSessionPage(),
-                                ),
-                              );
+                              context.push(AppRoutes.sessionSummary);
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFA65C00),

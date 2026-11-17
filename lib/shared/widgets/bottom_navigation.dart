@@ -1,29 +1,24 @@
-import 'package:flutter/material.dart';
-// Import your pages here
-import 'package:ploggr/features/home/home_page.dart';
-import 'package:ploggr/features/leaderboard/leaderboard_page.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:go_router/go_router.dart';
+import 'package:ploggr/core/constants/app_colors.dart';
+import 'package:ploggr/routes/app_routes.dart';
+
 // import 'package:ploggr/features/track/track_page.dart';
 // import 'package:ploggr/features/profile/profile_page.dart';
 
 // ---- Palette -------------------------------------------------------------
-const kOrange = Color(0xFFF7941D);
-const kDeepBrown = Color(0xFF6B3A0E);
-const kCardBg = Colors.white;
-const kPageBg = Color(0xFFFBF3EF);
-const kTextGrey = Color(0xFF8A8A8A);
-
 class BottomNavBar extends StatelessWidget {
   final String caller;
-  const BottomNavBar({this.caller = "home"});
+  const BottomNavBar({super.key, this.caller = "home"});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: kCardBg,
+        color: AppColors.cardBackground,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 12,
             offset: const Offset(0, -4),
           ),
@@ -41,10 +36,7 @@ class BottomNavBar extends StatelessWidget {
                 label: 'Home',
                 selected: caller == 'home',
                 onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HomePage()),
-                  );
+                  context.go(AppRoutes.home);
                 },
               ),
               _NavItem(
@@ -62,10 +54,7 @@ class BottomNavBar extends StatelessWidget {
                 label: 'Ranks',
                 selected: caller == 'ranks',
                 onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LeaderboardPage()),
-                  );
+                  context.go(AppRoutes.leaderboard);
                 },
               ),
               _NavItem(
@@ -101,7 +90,7 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? kOrange : kTextGrey;
+    final color = selected ? AppColors.orange : AppColors.textGrey;
 
     // 3. Wrap the column in a GestureDetector
     return GestureDetector(
@@ -115,7 +104,7 @@ class _NavItem extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: const BoxDecoration(
-                color: kOrange,
+                color: AppColors.orange,
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: Colors.white, size: 20),

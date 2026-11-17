@@ -1,13 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:ploggr/features/home/in_session.dart';
-import 'package:ploggr/features/util/bottom_navigation.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:go_router/go_router.dart';
+import 'package:ploggr/core/constants/app_colors.dart';
+import 'package:ploggr/routes/app_routes.dart';
+import 'package:ploggr/shared/widgets/bottom_navigation.dart';
 
 // ---- Palette -------------------------------------------------------------
-const kOrange = Color(0xFFF7941D);
-const kDeepBrown = Color(0xFF6B3A0E);
-const kCardBg = Colors.white;
-const kPageBg = Color(0xFFFBF3EF);
-const kTextGrey = Color(0xFF8A8A8A);
+const kOrange = AppColors.orange;
+const kDeepBrown = AppColors.deepBrown;
+const kCardBg = AppColors.cardBackground;
+const kPageBg = AppColors.pageBackground;
+const kTextGrey = AppColors.textGrey;
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -147,7 +149,7 @@ class _TotalImpactCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -242,7 +244,7 @@ class _TotalImpactCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 18,
-                  backgroundColor: kOrange.withOpacity(0.15),
+                  backgroundColor: kOrange.withValues(alpha: 0.15),
                   child: const Icon(
                     Icons.local_drink_outlined,
                     color: kOrange,
@@ -356,7 +358,7 @@ class _StatCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 14,
             offset: const Offset(0, 6),
           ),
@@ -399,7 +401,7 @@ class _StreakCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -501,10 +503,7 @@ class _StartPloggingButton extends StatelessWidget {
       height: 58,
       child: ElevatedButton(
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) =>const InSessionPage()),
-          );
+          context.push(AppRoutes.session);
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: kDeepBrown,

@@ -1,6 +1,8 @@
 import 'dart:math' as math;
-import 'package:flutter/material.dart';
-import 'package:ploggr/features/home/home_page.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:go_router/go_router.dart';
+import 'package:ploggr/core/constants/app_colors.dart';
+import 'package:ploggr/routes/app_routes.dart';
 
 // class EndSessionApp extends StatelessWidget {
 //   const EndSessionApp({super.key});
@@ -17,13 +19,13 @@ import 'package:ploggr/features/home/home_page.dart';
 // }
 
 // ---- Palette ---------------------------------------------------------------
-const kOrange = Color(0xFFF7941D);
-const kLime = Color(0xFFD8D93A);
-const kDeepBrown = Color(0xFF6B3A0E);
-const kCardGrey = Color(0xFFF1EEEC);
-const kTextGrey = Color(0xFF8A8A8A);
-const kWarnBg = Color(0xFFFBE4E1);
-const kWarnText = Color(0xFFC0392B);
+const kOrange = AppColors.orange;
+const kLime = AppColors.lime;
+const kDeepBrown = AppColors.deepBrown;
+const kCardGrey = AppColors.cardGrey;
+const kTextGrey = AppColors.textGrey;
+const kWarnBg = AppColors.warningBackground;
+const kWarnText = AppColors.warningText;
 
 /// This page owns mutable session data (photo captured, item counts, points),
 /// so it's a StatefulWidget rather than stateless — the confirm flow and the
@@ -63,11 +65,7 @@ class _EndSessionPageState extends State<EndSessionPage> {
     await Future.delayed(const Duration(milliseconds: 600)); // mock submit
     if (!mounted) return;
     setState(() => _isSubmitting = false);
-    Navigator.of(context).maybePop();
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => HomePage()),
-    );
+    context.go(AppRoutes.home);
   }
 
   @override
@@ -562,7 +560,7 @@ class _ConfirmButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: kOrange.withOpacity(0.5),
+                color: kOrange.withValues(alpha: 0.5),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
               ),

@@ -29,6 +29,40 @@ Planned features include:
 
 ---
 
+## 🧱 Application Architecture
+
+`lib/main.dart` starts the app inside Riverpod's `ProviderScope`, which makes
+providers available to the widget tree. `lib/app.dart` builds the root
+`MaterialApp.router`; the router provider is in `lib/routes/app_router.dart`.
+
+```text
+lib/
+├── main.dart
+├── app.dart
+├── core/
+│   ├── constants/   # App-wide values such as colors
+│   ├── theme/       # Material theme configuration
+│   ├── services/    # App-wide integrations
+│   └── utils/       # App-wide non-UI helpers
+├── routes/          # Router and centralized route paths
+├── features/        # auth, home, leaderboard, splash, plogging, profile
+├── models/          # Domain models shared across features
+└── shared/widgets/  # Reusable UI used by multiple features
+```
+
+Keep screens and feature-specific state or logic inside
+`lib/features/<feature>/`. Feature-owned Riverpod providers can live in a
+`providers/` subfolder there. Put cross-feature widgets in
+`lib/shared/widgets/`, and reserve `lib/core/` for app-wide foundations that
+aren't owned by a feature.
+
+Add destinations to `AppRoutes` in `lib/routes/app_routes.dart` and register
+their screens in `lib/routes/app_router.dart`. Navigate with go_router using
+those centralized paths. This keeps route definitions in one place while
+letting each feature own its screens and behavior.
+
+---
+
 ## 🚀 Getting Started
 
 Clone the repository:
