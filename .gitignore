@@ -52,3 +52,9 @@ lib/features/auth/login_page_new.dart
 lib/features/auth/pages_list.dart
 # lib/features/auth/login_page_new.dart
 android/build/
+
+# Local configuration; public examples contain no secrets.
+.env
+.env.*
+!.env.example
+/config/*.local.json

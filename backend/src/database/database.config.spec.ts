@@ -20,6 +20,7 @@ describe('shared database configuration', () => {
     const directory = mkdtempSync(join(tmpdir(), 'ploggr-config-'));
     const originalEnv = { ...process.env };
     try {
+      process.env.NODE_ENV = 'development';
       writeFileSync(join(directory, '.env'), 'DB_USER=file_user\nDB_PASSWORD=file_password\nDB_PORT=5544\n');
       delete process.env.DB_PORT;
       delete process.env.DB_PASSWORD;
@@ -28,6 +29,22 @@ describe('shared database configuration', () => {
       expect(env.DB_USER).toBe('process_user');
       expect(env.DB_PORT).toBe(5544);
       expect(env.DB_PASSWORD).toBe('file_password');
+    } finally {
+      process.env = originalEnv;
+      rmSync(directory, { recursive: true, force: true });
+    }
+  });
+
+  it('does not load file credentials in test mode', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'ploggr-test-config-'));
+    const originalEnv = { ...process.env };
+    try {
+      writeFileSync(join(directory, '.env'), 'DB_USER=local_user\nDB_PASSWORD=private_value\n');
+      process.env.NODE_ENV = 'test';
+      delete process.env.DB_PASSWORD;
+      expect(() => loadDatabaseEnvironment(join(directory, '.env')))
+        .toThrow('DB_PASSWORD must be a non-empty string');
+      expect(process.env.DB_PASSWORD).toBeUndefined();
     } finally {
       process.env = originalEnv;
       rmSync(directory, { recursive: true, force: true });

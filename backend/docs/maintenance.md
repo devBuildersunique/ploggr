@@ -1,9 +1,10 @@
 # Backend maintainer guide
 
-Use this guide to review M1.5 or extend the backend. New contributors should
+Use this guide to review M1.5/M1.6 or extend the backend. New contributors should
 start with [setup and verification](../README.md).
 
-[M1.5 review checklist](#m15-review-checklist) · [Architecture](#architecture) ·
+[M1.5 review checklist](#m15-review-checklist) · [M1.6 review checklist](#m16-review-checklist) ·
+[Architecture](#architecture) ·
 [Migrations](#migrations) · [Structure](#structure) ·
 [API conventions](#request-and-response-conventions)
 
@@ -64,6 +65,55 @@ The recorded environment was Linux/x86-64, Node.js 26.13.1, npm 11.20.0, Docker
 in `.nvmrc`; this recorded run did not separately validate Node.js 24. Test counts
 and patch versions may change; a new review must rerun the commands above.
 
+## M1.6 review checklist
+
+[M1.6 / issue #7](https://github.com/devBuildersunique/ploggr/issues/7) provides
+development configuration on top of M1.5. The
+[configuration guide](../../docs/development/configuration.md) documents its
+workflow and expected behavior. Flutter still uses offline preview data; network
+integration belongs to M1.7.
+
+| Requirement | Review | Verification |
+| --- | --- | --- |
+| Flutter API URL comes from configuration | [AppConfig](../../lib/core/config/app_config.dart), [provider](../../lib/core/config/app_config_provider.dart), [bootstrap](../../lib/main.dart) | Invalid URLs fail validation; no declaration preserves the preview; provider overrides work |
+| Public example and local configuration | [JSON example](../../config/development.example.json) and root ignore rules | Define-file configuration tests pass; local JSON is ignored |
+| Backend file policy is consistent | [Shared policy](../src/config/environment-file.ts), Nest module and standalone data source | Absolute backend file path, process precedence, test isolation, source/compiled path checks |
+| Secrets remain server-side | Backend example and ignored local files; Flutter example contains only an API URL | No credential values are emitted by validation errors; no local config is staged |
+| M1.5 remains functional | Existing database module and migrations | Build/lint/type checking, unit/HTTP tests, and isolated PostgreSQL/PostGIS integration suite pass |
+
+From the repository root, run Flutter checks (no server is needed):
+
+```bash
+flutter analyze
+flutter test
+flutter test --dart-define-from-file=config/development.example.json test/core/config/app_config_test.dart
+```
+
+Run the backend command chain under the M1.5 checklist above. The test suites
+include [file-policy parity tests](../src/config/environment-file.spec.ts),
+[database configuration tests](../src/database/database.config.spec.ts), and
+[Flutter configuration tests](../../test/core/config/app_config_test.dart).
+
+The M1.6 branch starts at M1.5 commit `62c5d3a` while upstream PR #61 is pending.
+Review its incremental diff against that base. After M1.5 merges, rebase only
+the M1.6 commits onto upstream `main` before opening the M1.6 PR; keep M1.5's
+existing commits and review separate from new M1.6 work.
+
+### M1.6 recorded validation
+
+On November 18, 2026, local validation passed Flutter analysis and all 148 Flutter
+tests, plus all 24 configuration tests with the committed JSON define file.
+Backend build, lint, type checking, all 40 unit/HTTP tests, and all six database
+integration tests passed. Source and compiled configuration resolved the same
+backend `.env` from the repository root, `backend/`, and an unrelated temporary
+working directory. Documentation links/anchors, command syntax, example visibility,
+and local-file ignore rules were also checked. The isolated test containers and
+volume were removed successfully.
+
+This run used Flutter 3.50.0 / Dart 3.14.0 and the Node.js/Docker versions listed
+in the M1.5 record above. It verifies configuration and backend/database behavior;
+mobile HTTP connectivity remains for M1.7.
+
 ## Architecture
 
 `AppModule` loads validated configuration, the database infrastructure, and the
@@ -73,8 +123,9 @@ from the same options without starting NestJS.
 
 - NestJS runs on the host. Compose runs only the PostgreSQL/PostGIS database.
 - Both entrypoints validate `DB_*` values; process environment variables take
-  precedence over `.env`. NestJS additionally validates its server settings and
-  skips `.env` when the process environment has `NODE_ENV=test`.
+  precedence over `.env`. Both resolve the same backend file independently of
+  working directory and skip it when the process environment has `NODE_ENV=test`.
+  NestJS additionally validates its server settings.
 - Schema synchronization, automatic migrations, and automatic extension
   installation are disabled. The entity list is empty for M1.5.
 - Startup makes three connection attempts, with one-second retry delays and a

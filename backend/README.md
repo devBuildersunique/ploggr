@@ -2,6 +2,8 @@
 
 NestJS TypeScript API foundation with PostgreSQL/PostGIS infrastructure for
 [M1.5 / issue #6](https://github.com/devBuildersunique/ploggr/issues/6).
+M1.6 adds consistent environment-file loading and public Flutter configuration;
+see the [configuration guide](../docs/development/configuration.md).
 Run NestJS on the host and the database in Docker Compose, independently of Flutter.
 No domain entities or business tables are introduced by this milestone.
 
@@ -77,7 +79,9 @@ provide production hosting, TLS, or production credentials.
 
 ## Configuration
 
-Configuration is loaded from `backend/.env` when commands run from `backend/`.
+NestJS and database CLI tools resolve `backend/.env` independently of their
+working directory, for both source and compiled execution. Continue running
+npm/Compose commands from `backend/` as shown in this guide.
 Existing process environment variables take precedence. `.env` files are ignored;
 the committed `.env.example` contains only non-secret defaults.
 
@@ -104,8 +108,10 @@ outside this milestone.
 
 Invalid configuration fails startup. The `/api` prefix is fixed centrally in
 `src/app.setup.ts`, so all feature controllers share it.
-NestJS ignores `.env` when the process environment sets `NODE_ENV=test`; the
-standalone database CLI still loads `.env` with process variables taking precedence.
+Both NestJS and the database CLI skip `.env` when the process environment sets
+`NODE_ENV=test`. Required values must then be supplied explicitly. For Flutter's
+API URL, device-specific addresses, and the shared configuration policy, see the
+[configuration guide](../docs/development/configuration.md).
 
 ## Verification
 
