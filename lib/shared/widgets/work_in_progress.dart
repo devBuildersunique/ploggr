@@ -1,7 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
-
-void showCustomMessage(BuildContext context, {required String title, required String description}) {
+void showCustomMessage(
+  BuildContext context, {
+  required String title,
+  required String description,
+}) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -9,7 +12,12 @@ void showCustomMessage(BuildContext context, {required String title, required St
     },
   );
 }
-void showWipPopup(BuildContext context, {required String title, required String description}) {
+
+void showWipPopup(
+  BuildContext context, {
+  required String title,
+  required String description,
+}) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -22,18 +30,12 @@ class WipDialog extends StatelessWidget {
   final String title;
   final String description;
 
-  const WipDialog({
-    super.key,
-    required this.title,
-    required this.description,
-  });
+  const WipDialog({super.key, required this.title, required this.description});
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24.0),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.0)),
       backgroundColor: const Color(0xffFF8A00), // Orange matching your theme
       child: Padding(
         padding: const EdgeInsets.only(
@@ -56,37 +58,27 @@ class WipDialog extends StatelessWidget {
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.black, width: 2),
                   ),
-                  child: const Icon(
-                    Icons.close,
-                    color: Colors.black,
-                    size: 20,
-                  ),
+                  child: const Icon(Icons.close, color: Colors.black, size: 20),
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 10),
-            
+
             // Title
             Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 32,
-              ),
+              style: const TextStyle(color: Colors.white, fontSize: 32),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Description
             Text(
               description,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
+              style: const TextStyle(color: Colors.white, fontSize: 16),
             ),
           ],
         ),

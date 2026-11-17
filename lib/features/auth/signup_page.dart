@@ -1,8 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
-import 'package:ploggr/features/auth/login_page.dart';
-import 'package:ploggr/features/home/home_page.dart';
-
+import 'package:material_ui/material_ui.dart';
+import 'package:go_router/go_router.dart';
+import 'package:ploggr/routes/app_routes.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -11,12 +10,9 @@ class SignupPage extends StatefulWidget {
   State<SignupPage> createState() => _SignupPageState();
 }
 
-
-
 class _SignupPageState extends State<SignupPage> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +52,9 @@ class _SignupPageState extends State<SignupPage> {
             child: SingleChildScrollView(
               child: Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: screenWidth * 0.10, // Slightly increased padding for the form
+                  horizontal:
+                      screenWidth *
+                      0.10, // Slightly increased padding for the form
                   vertical: screenWidth * 0.10,
                 ),
                 child: Column(
@@ -106,8 +104,10 @@ class _SignupPageState extends State<SignupPage> {
                           isPassword: true,
                           obscureText: _obscurePassword,
                           onToggleVisibility: () {
-                          setState(() => _obscurePassword = !_obscurePassword);
-                        },
+                            setState(
+                              () => _obscurePassword = !_obscurePassword,
+                            );
+                          },
                         ),
                         const SizedBox(height: 20),
                         _buildTextField(
@@ -115,7 +115,10 @@ class _SignupPageState extends State<SignupPage> {
                           isPassword: true,
                           obscureText: _obscureConfirmPassword,
                           onToggleVisibility: () {
-                            setState(() => _obscureConfirmPassword = !_obscureConfirmPassword);
+                            setState(
+                              () => _obscureConfirmPassword =
+                                  !_obscureConfirmPassword,
+                            );
                           },
                         ),
                         const SizedBox(height: 20),
@@ -133,10 +136,7 @@ class _SignupPageState extends State<SignupPage> {
                           height: 60,
                           child: ElevatedButton(
                             onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const HomePage()),
-                              );
+                              context.push(AppRoutes.home);
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xffFF8A00),
@@ -157,7 +157,7 @@ class _SignupPageState extends State<SignupPage> {
                         ),
 
                         const SizedBox(height: 30),
-                        SignUpFooter()
+                        SignUpFooter(),
                       ],
                     ),
                   ],
@@ -186,7 +186,9 @@ class _SignupPageState extends State<SignupPage> {
         suffixIcon: isPassword
             ? IconButton(
                 icon: Icon(
-                  obscureText ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                  obscureText
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
                   color: Colors.black,
                 ),
                 onPressed: onToggleVisibility,
@@ -235,7 +237,6 @@ class YellowClipper extends CustomClipper<Path> {
   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
 
-
 class SignUpFooter extends StatefulWidget {
   const SignUpFooter({super.key});
 
@@ -251,10 +252,7 @@ class _SignUpFooterState extends State<SignUpFooter> {
     super.initState();
     _signUpRecognizer = TapGestureRecognizer()
       ..onTap = () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginPage()),
-        );
+        context.push(AppRoutes.login);
       };
   }
 
@@ -268,19 +266,12 @@ class _SignUpFooterState extends State<SignUpFooter> {
   Widget build(BuildContext context) {
     return RichText(
       text: TextSpan(
-        style: const TextStyle(
-          color: Colors.lightBlue,
-          fontSize: 16,
-        ),
+        style: const TextStyle(color: Colors.lightBlue, fontSize: 16),
         children: [
-          const TextSpan(
-            text: "Already have a account? ",
-          ),
+          const TextSpan(text: "Already have a account? "),
           TextSpan(
             text: "Log In",
-            style: const TextStyle(
-              decoration: TextDecoration.underline,
-            ),
+            style: const TextStyle(decoration: TextDecoration.underline),
             recognizer: _signUpRecognizer,
           ),
         ],

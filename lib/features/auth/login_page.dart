@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:ploggr/features/auth/signup_page.dart';
-import 'package:ploggr/features/util/work_in_progress.dart';
-import '../home/home_page.dart';
 import 'package:flutter/gestures.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:go_router/go_router.dart';
+import 'package:ploggr/routes/app_routes.dart';
+import 'package:ploggr/shared/widgets/work_in_progress.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -114,7 +114,9 @@ class _LoginPage extends State<LoginPage> {
                           isPassword: true,
                           obscureText: _obscurePassword,
                           onToggleVisibility: () {
-                            setState(() => _obscurePassword = !_obscurePassword);
+                            setState(
+                              () => _obscurePassword = !_obscurePassword,
+                            );
                           },
                         ),
 
@@ -124,7 +126,11 @@ class _LoginPage extends State<LoginPage> {
                           alignment: Alignment.centerLeft,
                           child: TextButton(
                             onPressed: () => {
-                              showWipPopup(context, title: "WIP", description: "Need to add")
+                              showWipPopup(
+                                context,
+                                title: "WIP",
+                                description: "Need to add",
+                              ),
                             },
                             child: Text(
                               "Forget Password?",
@@ -143,12 +149,7 @@ class _LoginPage extends State<LoginPage> {
                           height: 60,
                           child: ElevatedButton(
                             onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => HomePage(),
-                                ),
-                              );
+                              context.push(AppRoutes.home);
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xffFF8A00),
@@ -196,9 +197,11 @@ class _LoginPage extends State<LoginPage> {
                             const SizedBox(width: 28),
 
                             TextButton(
-                              onPressed: () => showCustomMessage(context,
-                               title: "Not Implemented",
-                               description: "Waiting for the backend"),
+                              onPressed: () => showCustomMessage(
+                                context,
+                                title: "Not Implemented",
+                                description: "Waiting for the backend",
+                              ),
                               child: const CircleAvatar(
                                 radius: 35,
                                 backgroundColor: Color(0xffFFE8C6),
@@ -263,7 +266,9 @@ class _LoginPage extends State<LoginPage> {
         suffixIcon: isPassword
             ? IconButton(
                 icon: Icon(
-                  obscureText ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                  obscureText
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
                   color: Colors.black,
                 ),
                 onPressed: onToggleVisibility,
@@ -330,10 +335,7 @@ class _SignUpFooterState extends State<SignUpFooter> {
     super.initState();
     _signUpRecognizer = TapGestureRecognizer()
       ..onTap = () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const SignupPage()),
-        );
+        context.push(AppRoutes.signup);
       };
   }
 

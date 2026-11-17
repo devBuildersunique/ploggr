@@ -1,11 +1,11 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:ploggr/main.dart';
+import 'package:ploggr/app.dart';
 import 'package:ploggr/features/splash/splash_screen.dart';
 
 class _TestAssetBundle extends AssetBundle {
@@ -35,7 +35,10 @@ void main() {
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(
-      DefaultAssetBundle(bundle: _TestAssetBundle(), child: const PloggrApp()),
+      DefaultAssetBundle(
+        bundle: _TestAssetBundle(),
+        child: const ProviderScope(child: PloggrApp()),
+      ),
     );
     await tester.pump();
 

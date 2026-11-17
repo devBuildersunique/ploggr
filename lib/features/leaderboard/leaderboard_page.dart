@@ -1,12 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:ploggr/features/util/bottom_navigation.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:ploggr/core/constants/app_colors.dart';
+import 'package:ploggr/shared/widgets/bottom_navigation.dart';
 
 // ---- Palette ----------------------------------------------------------------
-const kOrange = Color(0xFFF7941D);
-const kDeepBrown = Color(0xFF6B3A0E);
-const kCardBg = Colors.white;
-const kPageBg = Color(0xFFFBF3EF);
-const kTextGrey = Color(0xFF8A8A8A);
+const kOrange = AppColors.orange;
+const kDeepBrown = AppColors.deepBrown;
+const kCardBg = AppColors.cardBackground;
+const kPageBg = AppColors.pageBackground;
+const kTextGrey = AppColors.textGrey;
 const kOliveGreen = Color(0xFF5E6814);
 const kLightBrown = Color(0xFF7A634E);
 
@@ -176,7 +177,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: kOrange.withOpacity(0.5),
+                        color: kOrange.withValues(alpha: 0.5),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       )
@@ -260,7 +261,7 @@ class _GlobalFriendsToggle extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 40),
       height: 48,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.5),
+        color: Colors.white.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(30),
       ),
       child: Row(
@@ -455,7 +456,7 @@ class _RankList extends StatelessWidget {
               boxShadow: [
                 if (entry.isMe)
                   BoxShadow(
-                    color: kOrange.withOpacity(0.1),
+                    color: kOrange.withValues(alpha: 0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   )
