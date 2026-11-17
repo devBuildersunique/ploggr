@@ -38,6 +38,9 @@ Planned features include:
 
 - Flutter
 - Dart
+- NestJS and TypeScript
+- PostgreSQL and PostGIS
+- TypeORM and Docker Compose
 
 ---
 
@@ -107,14 +110,18 @@ flutter run
 
 The NestJS TypeScript backend lives in [`backend/`](backend/README.md) and runs
 independently of Flutter. See its README for development setup, environment
-configuration, API conventions, and verification commands.
+configuration, API conventions, and verification commands. PostgreSQL/PostGIS
+runs in Docker Compose; the backend uses TypeORM and explicit migrations.
 
 ---
 
 ## 📂 Project Status
 
-The frontend design preview is implemented. Backend integrations and real device
-services remain future milestones.
+The frontend design preview, NestJS API foundation (M1.4), and PostgreSQL/PostGIS
+database foundation (M1.5) are implemented. The backend connects to PostgreSQL,
+uses explicit TypeORM migrations, and provides a process health endpoint.
+Flutter currently uses offline preview data; mobile-to-backend integration,
+authentication, domain persistence, and real device services remain future work.
 
 ---
 

@@ -1,9 +1,13 @@
-import { Body, Controller, Get, INestApplication, Logger, Post } from '@nestjs/common';
+import { Body, Controller, Get, INestApplication, Logger, Module, Post } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { IsString, MinLength } from 'class-validator';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
+import { DatabaseModule } from '../src/database/database.module';
+
+@Module({})
+class TestDatabaseModule {}
 
 class ExampleDto {
   @IsString()
@@ -32,7 +36,7 @@ describe('API foundation (HTTP)', () => {
     const module = await Test.createTestingModule({
       imports: [AppModule],
       controllers: [PolicyController],
-    }).compile();
+    }).overrideModule(DatabaseModule).useModule(TestDatabaseModule).compile();
     app = module.createNestApplication();
     configureApp(app);
     await app.init();
