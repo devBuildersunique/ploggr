@@ -8,7 +8,19 @@ The goal of Ploggr is to encourage a healthier lifestyle while making a positive
 
 ## ✨ Features
 
-The project is currently under development.
+The complete 18-screen green mobile UI is available as an offline preview.
+Start with `flutter run`, advance through onboarding, and choose **Explore the
+preview** on Login. Sample forms also work with fictional details.
+
+The preview includes camera/report/map flows, a pauseable sample plogging
+session, session summaries, clean-ups, challenges, rankings, badges, a local
+community feed, and an editable profile. Saved sessions update your impact;
+reports, joins, posts, comments, and profile changes last until the app restarts.
+No authentication, GPS, camera, live maps, AI detection, or backend calls are made.
+
+See the [implementation notes](docs/design/implementation.md),
+[asset provenance and prompts](docs/design/assets.md), and
+[validation report](docs/design/validation.md).
 
 Planned features include:
 
@@ -101,7 +113,8 @@ configuration, API conventions, and verification commands.
 
 ## 📂 Project Status
 
-🚧 This project is currently in active development.
+The frontend design preview is implemented. Backend integrations and real device
+services remain future milestones.
 
 ---
 

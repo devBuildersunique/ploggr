@@ -1,366 +1,161 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:go_router/go_router.dart';
-import 'package:ploggr/routes/app_routes.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../routes/app_routes.dart';
+import '../../shared/widgets/ploggr_ui.dart';
+import '../../shared/widgets/preview_map.dart';
+import '../plogging/application/session_controller.dart';
 
-class InSessionPage extends StatelessWidget {
+class InSessionPage extends ConsumerWidget {
   const InSessionPage({super.key});
-
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFF9200),
-      // appBar: AppBar(),
-      body: SafeArea(
-        child: Center(
-          child: Container(
-            width: double.infinity,
-            height: double.infinity,
-            color: const Color(0xFFFCF8F9),
-            child: Column(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(sessionProvider);
+    void finish() {
+      ref.read(sessionProvider.notifier).finish();
+      openPage(context, AppRoutes.sessionSummary);
+    }
+
+    return AppPage(
+      title: 'Plogging in Progress',
+      bottomAction: PrimaryButton('Add Details', onPressed: finish),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(state.elapsed, textAlign: TextAlign.center, style: AppText.hero),
+          const SizedBox(height: 4),
+          PreviewNote(
+            text: state.paused
+                ? 'Preview session · paused'
+                : 'Preview session · simulated activity',
+          ),
+          const SizedBox(height: 16),
+          const Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: StatTile(
+                  value: '2.8 km',
+                  label: 'Distance',
+                  icon: Icons.route_rounded,
+                ),
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: StatTile(
+                  value: '5.6 km/h',
+                  label: 'Avg. speed',
+                  icon: Icons.speed_rounded,
+                ),
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: StatTile(
+                  value: '320 kcal',
+                  label: 'Energy',
+                  icon: Icons.local_fire_department_rounded,
+                  color: Color(0xFFF68323),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: MediaQuery.sizeOf(context).height * .42,
+            child: Stack(
               children: [
-                // ---------------- HEADER ----------------
-                Container(
-                  height: 79,
-                  width: double.infinity,
-                  color: const Color(0xFFFF9200),
-                  padding: const EdgeInsets.symmetric(horizontal: 22),
-                  child: Row(
-                    children: [
-                      // Logo
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Center(
-                          child: Text(
-                            '♻',
-                            style: TextStyle(
-                              fontSize: 27,
-                              color: Color(0xFF00A878),
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(width: 20),
-
-                      const Text(
-                        'Plogging',
-                        style: TextStyle(
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
+                Positioned.fill(
+                  child: PreviewMap(
+                    route: true,
+                    onMarkerTap: (_) => openPage(context, AppRoutes.map),
                   ),
                 ),
-
-                // ---------------- MAP ----------------
-                SizedBox(
-                  height: 299,
-                  width: double.infinity,
-                  child: CustomPaint(painter: FakeMapPainter()),
-                ),
-
-                // ---------------- CONTENT ----------------
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 27),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 27),
-
-                        // Statistics
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const [
-                            StatCard(value: '3.2', label: 'km'),
-                            StatCard(value: '24:10', label: 'time'),
-                            StatCard(
-                              value: '7',
-                              label: 'Steps',
-                              valueColor: Color(0xFFA45A00),
-                            ),
-                          ],
+                Positioned(
+                  left: 14,
+                  right: 14,
+                  bottom: 16,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton.filled(
+                        tooltip: 'View litter map',
+                        style: IconButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: AppColors.primary,
                         ),
-
-                        const SizedBox(height: 24),
-
-                        // Camera
-                        Container(
-                          width: 112,
-                          height: 112,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white,
-                            border: Border.all(color: Colors.white, width: 3),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: 4,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: ClipOval(
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                // Temporary photo background
-                                Image.network(
-                                  'https://images.unsplash.com/photo-1500534623283-312aade485b7',
-                                  width: 112,
-                                  height: 112,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (_, _, _) {
-                                    return Container(
-                                      color: Colors.grey.shade300,
-                                    );
-                                  },
-                                ),
-
-                                // Green camera circle
-                                Container(
-                                  width: 70,
-                                  height: 70,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFF12B88A),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.camera_alt,
-                                    size: 39,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                        onPressed: () => openPage(context, AppRoutes.map),
+                        icon: const Icon(Icons.map_outlined),
+                      ),
+                      IconButton.filled(
+                        tooltip: state.paused
+                            ? 'Resume session'
+                            : 'Pause session',
+                        style: IconButton.styleFrom(
+                          backgroundColor: AppColors.coral,
+                          minimumSize: const Size(68, 68),
+                          side: const BorderSide(color: Colors.white, width: 4),
                         ),
-
-                        const SizedBox(height: 19),
-
-                        // Waste chips
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const [
-                            WasteChip(text: '3 bottles'),
-                            WasteChip(text: '2 wrappers'),
-                            WasteChip(text: '1 can'),
-                            WasteChip(text: '1 bag'),
-                          ],
+                        onPressed: () {
+                          if (!state.active && !state.paused) {
+                            ref.read(sessionProvider.notifier).start();
+                          } else {
+                            ref.read(sessionProvider.notifier).togglePause();
+                          }
+                        },
+                        icon: Icon(
+                          state.paused
+                              ? Icons.play_arrow_rounded
+                              : Icons.pause_rounded,
+                          size: 32,
                         ),
-
-                        const Spacer(),
-
-                        // End session button
-                        SizedBox(
-                          width: double.infinity,
-                          height: 54,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              context.push(AppRoutes.sessionSummary);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFA65C00),
-                              foregroundColor: Colors.white,
-                              elevation: 4,
-                              shadowColor: Colors.black26,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                            ),
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.stop_circle_outlined, size: 25),
-                                SizedBox(width: 10),
-                                Text(
-                                  'End session',
-                                  style: TextStyle(
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                      ),
+                      IconButton.filled(
+                        tooltip: 'End session',
+                        style: IconButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: AppColors.ink,
                         ),
-
-                        const SizedBox(height: 39),
-                      ],
-                    ),
+                        onPressed: finish,
+                        icon: const Icon(Icons.stop_rounded),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-// ============================================================
-// STAT CARD
-// ============================================================
-
-class StatCard extends StatelessWidget {
-  final String value;
-  final String label;
-  final Color valueColor;
-
-  const StatCard({
-    super.key,
-    required this.value,
-    required this.label,
-    this.valueColor = const Color(0xFF292929),
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 96,
-      height: 70,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(35),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x12000000),
-            blurRadius: 5,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(value, style: TextStyle(fontSize: 16, color: valueColor)),
-          const SizedBox(height: 5),
-          Text(
-            label,
-            style: const TextStyle(fontSize: 14, color: Color(0xFF555555)),
+          const SizedBox(height: 12),
+          EcoCard(
+            onTap: () => openPage(context, AppRoutes.map),
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFFF1D7),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.shopping_bag_outlined,
+                    color: AppColors.coral,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('3 nearby litter spots ahead', style: AppText.label),
+                      Text('Tap to view and pick up', style: AppText.caption),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right_rounded),
+              ],
+            ),
           ),
         ],
       ),
     );
-  }
-}
-
-// ============================================================
-// WASTE CHIP
-// ============================================================
-
-class WasteChip extends StatelessWidget {
-  final String text;
-
-  const WasteChip({super.key, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE8E1E1)),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x10000000),
-            blurRadius: 3,
-            offset: Offset(0, 1),
-          ),
-        ],
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(fontSize: 12, color: Color(0xFF333333)),
-      ),
-    );
-  }
-}
-
-// ============================================================
-// TEMPORARY MAP
-// ============================================================
-
-class FakeMapPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    // Background
-    final backgroundPaint = Paint()..color = const Color(0xFF061C12);
-
-    canvas.drawRect(Offset.zero & size, backgroundPaint);
-
-    // Grid / roads
-    final roadPaint = Paint()
-      ..color = const Color(0xFF0D3022)
-      ..strokeWidth = 1;
-
-    // Vertical roads
-    for (double x = 0; x < size.width; x += 51) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), roadPaint);
-    }
-
-    // Horizontal roads
-    for (double y = 0; y < size.height; y += 51) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), roadPaint);
-    }
-
-    // Route
-    final routePaint = Paint()
-      ..color = const Color(0xFF16B88A)
-      ..strokeWidth = 5
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    final route = Path();
-
-    route.moveTo(0, size.height * .70);
-
-    route.cubicTo(
-      size.width * .20,
-      size.height * .54,
-      size.width * .42,
-      size.height * .40,
-      size.width * .62,
-      size.height * .46,
-    );
-
-    route.cubicTo(
-      size.width * .78,
-      size.height * .51,
-      size.width * .87,
-      size.height * .40,
-      size.width,
-      size.height * .28,
-    );
-
-    canvas.drawPath(route, routePaint);
-
-    // Route markers
-    final markerPaint = Paint()..color = const Color(0x996F4A16);
-
-    canvas.drawCircle(
-      Offset(size.width * .44, size.height * .58),
-      26,
-      markerPaint,
-    );
-
-    canvas.drawCircle(
-      Offset(size.width * .79, size.height * .42),
-      18,
-      markerPaint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
   }
 }

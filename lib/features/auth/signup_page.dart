@@ -1,281 +1,118 @@
-import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:go_router/go_router.dart';
-import 'package:ploggr/routes/app_routes.dart';
+import '../../routes/app_routes.dart';
+import '../../shared/widgets/ploggr_ui.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
-
   @override
   State<SignupPage> createState() => _SignupPageState();
 }
 
 class _SignupPageState extends State<SignupPage> {
-  bool _obscurePassword = true;
-  bool _obscureConfirmPassword = true;
-
-  @override
-  Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          /// Orange Shape
-          SizedBox(
-            width: double.infinity,
-            height: screenWidth * 0.8,
-            child: ClipPath(
-              clipper: OrangeClipper(),
-              child: Container(
-                width: double.infinity,
-                color: const Color(0xffFF8A00),
-              ),
-            ),
-          ),
-
-          /// Yellow Shape
-          SizedBox(
-            width: double.infinity,
-            height: screenWidth * 0.58,
-            child: ClipPath(
-              clipper: YellowClipper(),
-              child: Container(
-                width: double.infinity,
-                color: const Color(0xffFFF84A),
-              ),
-            ),
-          ),
-
-          SafeArea(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal:
-                      screenWidth *
-                      0.10, // Slightly increased padding for the form
-                  vertical: screenWidth * 0.10,
-                ),
-                child: Column(
-                  children: [
-                    SizedBox(height: screenWidth * 0.42),
-
-                    // Title
-                    const Text(
-                      "Sign Up",
-                      style: TextStyle(
-                        fontSize: 42,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-
-                    // Underline
-                    Container(
-                      margin: const EdgeInsets.only(top: 6),
-                      width: 100,
-                      height: 3,
-                      color: Colors.orange,
-                    ),
-
-                    SizedBox(height: screenWidth * 0.10),
-
-                    // Form Fields
-                    Column(
-                      children: [
-                        _buildTextField(
-                          hintText: "Username - x23407",
-                          icon: Icons.account_circle,
-                        ),
-                        const SizedBox(height: 20),
-                        _buildTextField(
-                          hintText: "Real Name - John",
-                          icon: Icons.badge,
-                        ),
-                        const SizedBox(height: 20),
-                        _buildTextField(
-                          hintText: "Email id",
-                          icon: Icons.mail_outline,
-                        ),
-                        const SizedBox(height: 20),
-                        _buildTextField(
-                          hintText: "Password",
-                          isPassword: true,
-                          obscureText: _obscurePassword,
-                          onToggleVisibility: () {
-                            setState(
-                              () => _obscurePassword = !_obscurePassword,
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        _buildTextField(
-                          hintText: "Confirm Password",
-                          isPassword: true,
-                          obscureText: _obscureConfirmPassword,
-                          onToggleVisibility: () {
-                            setState(
-                              () => _obscureConfirmPassword =
-                                  !_obscureConfirmPassword,
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        // _buildTextField(
-                        //   hintText: "Confirm Password",
-                        //   icon: Icons.visibility_outlined,
-                        //   isPassword: true,
-                        // ),
-
-                        const SizedBox(height: 45),
-
-                        // Sign Up Button
-                        SizedBox(
-                          width: double.infinity,
-                          height: 60,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              context.push(AppRoutes.home);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xffFF8A00),
-                              foregroundColor: Colors.black,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(35),
-                              ),
-                            ),
-                            child: const Text(
-                              "Sign Up",
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 30),
-                        SignUpFooter(),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Helper method to keep the code clean and avoid repeating TextField configurations
-  Widget _buildTextField({
-    required String hintText,
-    IconData icon = Icons.account_circle, // fallback for non-password fields
-    bool isPassword = false,
-    bool obscureText = false,
-    VoidCallback? onToggleVisibility,
-  }) {
-    return TextField(
-      obscureText: isPassword ? obscureText : false,
-      decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: const TextStyle(color: Colors.grey, fontSize: 18),
-        suffixIcon: isPassword
-            ? IconButton(
-                icon: Icon(
-                  obscureText
-                      ? Icons.visibility_off_outlined
-                      : Icons.visibility_outlined,
-                  color: Colors.black,
-                ),
-                onPressed: onToggleVisibility,
-              )
-            : Icon(icon, color: Colors.black),
-        enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.black54),
-        ),
-        focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.orange, width: 2),
-        ),
-      ),
-    );
-  }
-}
-
-// Retaining the Clippers from the original code
-class OrangeClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    Path path = Path();
-    path.lineTo(0, size.height * 0.88);
-    path.lineTo(size.width * 0.24, size.height);
-    path.lineTo(size.width * 0.62, 0);
-    path.close();
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
-}
-
-class YellowClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    Path path = Path();
-    path.moveTo(size.width * 0.62, 0);
-    path.lineTo(size.width, 0);
-    path.lineTo(size.width, size.height * 0.60);
-    path.lineTo(size.width * 0.38, size.height);
-    path.close();
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
-}
-
-class SignUpFooter extends StatefulWidget {
-  const SignUpFooter({super.key});
-
-  @override
-  State<SignUpFooter> createState() => _SignUpFooterState();
-}
-
-class _SignUpFooterState extends State<SignUpFooter> {
-  late final TapGestureRecognizer _signUpRecognizer;
-
-  @override
-  void initState() {
-    super.initState();
-    _signUpRecognizer = TapGestureRecognizer()
-      ..onTap = () {
-        context.push(AppRoutes.login);
-      };
-  }
-
+  final _form = GlobalKey<FormState>();
+  final _password = TextEditingController();
   @override
   void dispose() {
-    _signUpRecognizer.dispose();
+    _password.dispose();
     super.dispose();
   }
 
+  void _submit() {
+    if (_form.currentState!.validate()) {
+      FocusScope.of(context).unfocus();
+      switchPage(context, AppRoutes.home);
+      toast(context, 'Welcome to the preview. No account was created.');
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
-    return RichText(
-      text: TextSpan(
-        style: const TextStyle(color: Colors.lightBlue, fontSize: 16),
+  Widget build(BuildContext context) => AppPage(
+    title: '',
+    backTo: AppRoutes.login,
+    child: Form(
+      key: _form,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const TextSpan(text: "Already have a account? "),
-          TextSpan(
-            text: "Log In",
-            style: const TextStyle(decoration: TextDecoration.underline),
-            recognizer: _signUpRecognizer,
+          const SizedBox(height: 6),
+          const Text(
+            'Sign Up',
+            style: AppText.title,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          const Text('Create your ploggr account', textAlign: TextAlign.center),
+          const SizedBox(height: 30),
+          AppField(
+            label: 'Full Name',
+            icon: Icons.person_outline_rounded,
+            validator: _required,
+          ),
+          const SizedBox(height: 14),
+          AppField(
+            label: 'Email',
+            icon: Icons.mail_outline_rounded,
+            keyboardType: TextInputType.emailAddress,
+            validator: (value) =>
+                value != null &&
+                    RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(value.trim())
+                ? null
+                : 'Enter a valid sample email',
+          ),
+          const SizedBox(height: 14),
+          AppField(
+            label: 'Phone Number',
+            icon: Icons.phone_outlined,
+            keyboardType: TextInputType.phone,
+            validator: (value) =>
+                (value ?? '').replaceAll(RegExp(r'\D'), '').length >= 7
+                ? null
+                : 'Enter a valid sample phone number',
+          ),
+          const SizedBox(height: 14),
+          AppField(
+            label: 'Password',
+            icon: Icons.lock_outline_rounded,
+            password: true,
+            controller: _password,
+            validator: (value) =>
+                (value ?? '').length >= 8 ? null : 'Use at least 8 characters',
+          ),
+          const SizedBox(height: 14),
+          AppField(
+            label: 'Confirm Password',
+            icon: Icons.lock_outline_rounded,
+            password: true,
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) => _submit(),
+            validator: (value) =>
+                value == _password.text && (value ?? '').isNotEmpty
+                ? null
+                : 'Passwords must match',
+          ),
+          const SizedBox(height: 30),
+          PrimaryButton('Create Account', onPressed: _submit),
+          const SizedBox(height: 10),
+          Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              const Text('Already have an account?', style: AppText.caption),
+              TextButton(
+                onPressed: () => switchPage(context, AppRoutes.login),
+                child: const Text('Login'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const PreviewNote(
+            text:
+                'Preview only · no account is created or details stored.\nPlease use fictional details.',
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+  String? _required(String? value) =>
+      value == null || value.trim().isEmpty ? 'Enter a sample name' : null;
 }

@@ -1,13 +1,23 @@
-/// URL paths for the app's top-level screens.
-///
-/// Keeping paths together makes it easier to add routes without scattering
-/// string literals across feature widgets.
 abstract final class AppRoutes {
   static const splash = '/';
+  static const onboarding = '/onboarding';
   static const login = '/login';
   static const signup = '/signup';
   static const home = '/home';
-  static const leaderboard = '/leaderboard';
+  static const scan = '/scan';
+  static const report = '/report';
+  static const map = '/map';
   static const session = '/session';
   static const sessionSummary = '/session/summary';
+  static const cleanups = '/cleanups';
+  static const challenges = '/challenges';
+  static const leaderboard = '/leaderboard';
+  static const badges = '/badges';
+  static const community = '/community';
+  static const profile = '/profile';
+  static const activity = '/profile/activity';
+  static const saved = '/profile/saved';
+  static const settings = '/profile/settings';
+  static const help = '/profile/help';
+  static const about = '/profile/about';
 }

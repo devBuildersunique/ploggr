@@ -1,126 +1,116 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:go_router/go_router.dart';
-import 'package:ploggr/core/constants/app_colors.dart';
-import 'package:ploggr/routes/app_routes.dart';
+import '../../routes/app_routes.dart';
+import 'ploggr_ui.dart';
 
-// import 'package:ploggr/features/track/track_page.dart';
-// import 'package:ploggr/features/profile/profile_page.dart';
-
-// ---- Palette -------------------------------------------------------------
 class BottomNavBar extends StatelessWidget {
+  const BottomNavBar({super.key, this.caller = 'home'});
   final String caller;
-  const BottomNavBar({super.key, this.caller = "home"});
-
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.cardBackground,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 12,
-            offset: const Offset(0, -4),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _NavItem(
-                icon: Icons.home_rounded,
-                label: 'Home',
-                selected: caller == 'home',
-                onTap: () {
-                  context.go(AppRoutes.home);
-                },
-              ),
-              _NavItem(
-                icon: Icons.eco_outlined,
-                label: 'Impact',
-                onTap: () {
-                  // Navigator.pushReplacement(
-                  //   context,
-                  //   MaterialPageRoute(builder: (context) => const TrackPage()),
-                  // );
-                },
-              ),
-              _NavItem(
-                icon: Icons.bar_chart_rounded,
-                label: 'Ranks',
-                selected: caller == 'ranks',
-                onTap: () {
-                  context.go(AppRoutes.leaderboard);
-                },
-              ),
-              _NavItem(
-                icon: Icons.person_outline_rounded,
-                label: 'Profile',
-                onTap: () {
-                  // Navigator.pushReplacement(
-                  //   context,
-                  //   MaterialPageRoute(builder: (context) => const ProfilePage()),
-                  // );
-                },
-              ),
-            ],
+  Widget build(BuildContext context) => DecoratedBox(
+    decoration: const BoxDecoration(
+      color: AppColors.surface,
+      border: Border(top: BorderSide(color: AppColors.border)),
+    ),
+    child: SafeArea(
+      top: false,
+      child: Center(
+        heightFactor: 1,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            child: Row(
+              children: [
+                _item(
+                  context,
+                  'home',
+                  'Home',
+                  Icons.home_outlined,
+                  Icons.home_rounded,
+                  AppRoutes.home,
+                ),
+                _item(
+                  context,
+                  'explore',
+                  'Explore',
+                  Icons.search_rounded,
+                  Icons.search_rounded,
+                  AppRoutes.map,
+                ),
+                Expanded(
+                  child: Center(
+                    heightFactor: 1,
+                    child: IconButton.filled(
+                      tooltip: 'Create a litter report',
+                      onPressed: () => openPage(context, AppRoutes.scan),
+                      icon: const Icon(Icons.add_rounded, size: 28),
+                    ),
+                  ),
+                ),
+                _item(
+                  context,
+                  'community',
+                  'Community',
+                  Icons.diversity_3_outlined,
+                  Icons.diversity_3_rounded,
+                  AppRoutes.community,
+                ),
+                _item(
+                  context,
+                  'profile',
+                  'Profile',
+                  Icons.person_outline_rounded,
+                  Icons.person_rounded,
+                  AppRoutes.profile,
+                ),
+              ],
+            ),
           ),
         ),
       ),
-    );
-  }
-}
-
-class _NavItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool selected;
-  final VoidCallback? onTap; // 1. Add the callback parameter
-
-  const _NavItem({
-    required this.icon,
-    required this.label,
-    this.selected = false,
-    this.onTap, // 2. Initialize it in the constructor
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final color = selected ? AppColors.orange : AppColors.textGrey;
-
-    // 3. Wrap the column in a GestureDetector
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior
-          .opaque, // Ensures the whole area is clickable, not just the visible pixels
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (selected)
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: const BoxDecoration(
-                color: AppColors.orange,
-                shape: BoxShape.circle,
+    ),
+  );
+  Widget _item(
+    BuildContext context,
+    String id,
+    String label,
+    IconData icon,
+    IconData active,
+    String route,
+  ) {
+    final selected = caller == id;
+    final color = selected ? AppColors.primary : AppColors.muted;
+    return Expanded(
+      child: Semantics(
+        selected: selected,
+        button: true,
+        child: InkWell(
+          borderRadius: AppRadius.small,
+          onTap: () => switchPage(context, route),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 52),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 3),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(selected ? active : icon, color: color, size: 23),
+                  const SizedBox(height: 3),
+                  Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 11,
+                      height: 1.1,
+                      fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                      color: color,
+                    ),
+                  ),
+                ],
               ),
-              child: Icon(icon, color: Colors.white, size: 20),
-            )
-          else
-            Icon(icon, color: color, size: 24),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              color: color,
-              fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
             ),
           ),
-        ],
+        ),
       ),
     );
   }
