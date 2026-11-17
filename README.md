@@ -113,11 +113,6 @@ independently of Flutter. See its README for development setup, environment
 configuration, API conventions, and verification commands. PostgreSQL/PostGIS
 runs in Docker Compose; the backend uses TypeORM and explicit migrations.
 
-- New contributors: [start and test the backend](backend/README.md#first-time-setup).
-- Maintainers: [review the M1.5 foundation](backend/docs/maintenance.md#m15-review-checklist).
-
-Flutter's offline preview can run without the backend or database.
-
 ---
 
 ## 📂 Project Status
@@ -135,9 +130,9 @@ authentication, domain persistence, and real device services remain future work.
 Contributions are welcome!
 
 1. Fork the repository.
-2. Create a feature branch from an up-to-date `main`.
+2. Create a feature branch from `development`.
 3. Commit your changes.
-4. Open a Pull Request targeting `main`, including the related issue and checks run.
+4. Open a Pull Request targeting the `development` branch.
 
 ---
 
