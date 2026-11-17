@@ -91,6 +91,14 @@ flutter run
 
 ---
 
+## Backend API
+
+The NestJS TypeScript backend lives in [`backend/`](backend/README.md) and runs
+independently of Flutter. See its README for development setup, environment
+configuration, API conventions, and verification commands.
+
+---
+
 ## 📂 Project Status
 
 🚧 This project is currently in active development.
