@@ -8,6 +8,19 @@ import '../plogging/application/session_controller.dart';
 import '../litter/application/litter_controller.dart';
 import 'profile_controller.dart';
 
+enum ProfileSection {
+  activity(AppRoutes.activity, 'My Activity', Icons.work_history_outlined),
+  saved(AppRoutes.saved, 'Saved Litter Spots', Icons.bookmark_border_rounded),
+  settings(AppRoutes.settings, 'Settings', Icons.settings_outlined),
+  help(AppRoutes.help, 'Help & Support', Icons.help_outline_rounded),
+  about(AppRoutes.about, 'About ploggr', Icons.info_outline_rounded);
+
+  const ProfileSection(this.path, this.title, this.icon);
+  final String path;
+  final String title;
+  final IconData icon;
+}
+
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
   @override
@@ -77,40 +90,10 @@ class ProfilePage extends ConsumerWidget {
             padding: EdgeInsets.zero,
             child: Column(
               children: [
-                _row(
-                  context,
-                  'My Activity',
-                  Icons.work_history_outlined,
-                  AppRoutes.activity,
-                ),
-                const Divider(),
-                _row(
-                  context,
-                  'Saved Litter Spots',
-                  Icons.bookmark_border_rounded,
-                  AppRoutes.saved,
-                ),
-                const Divider(),
-                _row(
-                  context,
-                  'Settings',
-                  Icons.settings_outlined,
-                  AppRoutes.settings,
-                ),
-                const Divider(),
-                _row(
-                  context,
-                  'Help & Support',
-                  Icons.help_outline_rounded,
-                  AppRoutes.help,
-                ),
-                const Divider(),
-                _row(
-                  context,
-                  'About ploggr',
-                  Icons.info_outline_rounded,
-                  AppRoutes.about,
-                ),
+                for (final section in ProfileSection.values) ...[
+                  if (section != ProfileSection.values.first) const Divider(),
+                  _row(context, section),
+                ],
               ],
             ),
           ),
@@ -123,18 +106,14 @@ class ProfilePage extends ConsumerWidget {
     );
   }
 
-  Widget _row(
-    BuildContext context,
-    String title,
-    IconData icon,
-    String route,
-  ) => ListTile(
+  Widget _row(BuildContext context, ProfileSection section) => ListTile(
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 3),
-    leading: Icon(icon, size: 22, color: AppColors.ink),
-    title: Text(title, style: AppText.label.copyWith(fontSize: 14)),
+    leading: Icon(section.icon, size: 22, color: AppColors.ink),
+    title: Text(section.title, style: AppText.label.copyWith(fontSize: 14)),
     trailing: const Icon(Icons.chevron_right_rounded, size: 21),
-    onTap: () => openPage(context, route),
+    onTap: () => openPage(context, section.path),
   );
+
   Future<void> _edit(
     BuildContext context,
     WidgetRef ref,
@@ -192,7 +171,7 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
 
 class ProfileDetailPage extends ConsumerStatefulWidget {
   const ProfileDetailPage({super.key, required this.section});
-  final String section;
+  final ProfileSection section;
   @override
   ConsumerState<ProfileDetailPage> createState() => _ProfileDetailPageState();
 }
@@ -200,21 +179,14 @@ class ProfileDetailPage extends ConsumerStatefulWidget {
 class _ProfileDetailPageState extends ConsumerState<ProfileDetailPage> {
   @override
   Widget build(BuildContext context) {
-    final title = switch (widget.section) {
-      'activity' => 'My Activity',
-      'saved' => 'Saved Litter Spots',
-      'settings' => 'Settings',
-      'help' => 'Help & Support',
-      _ => 'About ploggr',
-    };
     return AppPage(
-      title: title,
+      title: widget.section.title,
       backTo: AppRoutes.profile,
       child: switch (widget.section) {
-        'activity' => _activity(),
-        'saved' => _saved(),
-        'settings' => _settings(),
-        'help' => const Column(
+        ProfileSection.activity => _activity(),
+        ProfileSection.saved => _saved(),
+        ProfileSection.settings => _settings(),
+        ProfileSection.help => const Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text('A little help for your next plog', style: AppText.title),
@@ -265,7 +237,7 @@ class _ProfileDetailPageState extends ConsumerState<ProfileDetailPage> {
             ),
           ],
         ),
-        _ => const Column(
+        ProfileSection.about => const Column(
           children: [
             SizedBox(height: 32),
             PloggrLogo(),

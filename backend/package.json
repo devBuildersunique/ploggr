@@ -11,6 +11,7 @@
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main.js",
     "lint": "eslint .",
+    "check": "npm run lint && tsc --noEmit && npm test",
     "test": "jest --runInBand",
     "test:watch": "jest --watch",
     "test:e2e": "jest --runInBand --testPathPattern=e2e-spec",

@@ -69,9 +69,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.connection,
         builder: (_, _) => const ConnectionPage(),
       ),
-      for (final section in ['activity', 'saved', 'settings', 'help', 'about'])
+      for (final section in ProfileSection.values)
         GoRoute(
-          path: '/profile/$section',
+          path: section.path,
           builder: (_, _) => ProfileDetailPage(section: section),
         ),
     ],

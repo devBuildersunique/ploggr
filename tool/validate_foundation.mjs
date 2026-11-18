@@ -135,9 +135,7 @@ await runCli(async signal => {
   await flutter(['test', '--no-pub', '--reporter=expanded']);
   await flutter(['test', '--no-pub', '--dart-define-from-file=config/development.example.json',
     'test/core/config/app_config_test.dart']);
-  await npm(['run', 'lint']);
-  await npm(['exec', '--', 'tsc', '--noEmit']);
-  await npm(['test']);
+  await npm(['run', 'check']);
   await flutter(['build', 'linux', '--debug', '--no-pub']);
   await flutter(['test', '--no-pub', '-d', 'linux', nativeTest, '--dart-define=EXPECT_OFFLINE=true']);
   await runDatabaseIntegration(signal, checkLiveStack);
