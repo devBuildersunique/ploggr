@@ -2,8 +2,7 @@
 
 All four PNGs were generated with the built-in imagegen tool for this project,
 then copied into the repository. They are illustrations/sample photography, not
-reference screenshots. The original orange logo is retained on disk but is no
-longer used by the green design. No network images are loaded at runtime.
+reference screenshots. The app loads its artwork and font from the bundle.
 
 - `assets/images/illustrations/splash.png`: splash park and plogger silhouettes.
 - `assets/images/illustrations/plogging.png`: first onboarding illustration.

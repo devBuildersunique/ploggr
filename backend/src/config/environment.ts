@@ -12,6 +12,15 @@ export interface Environment extends DatabaseEnvironment {
   PORT: number;
 }
 
+function parsePort(value: unknown, name: 'PORT' | 'DB_PORT', fallback: number): number {
+  const raw = value ?? fallback;
+  const port = Number(raw);
+  if (!/^\d+$/.test(String(raw)) || !Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error(`${name} must be an integer between 1 and 65535`);
+  }
+  return port;
+}
+
 export function validateEnvironment(config: Record<string, unknown>): Environment {
   const nodeEnv = config.NODE_ENV ?? 'development';
   if (nodeEnv !== 'development' && nodeEnv !== 'test' && nodeEnv !== 'production') {
@@ -23,11 +32,7 @@ export function validateEnvironment(config: Record<string, unknown>): Environmen
     throw new Error('HOST must be a non-empty hostname or IP address');
   }
 
-  const rawPort = config.PORT ?? '3000';
-  const port = Number(rawPort);
-  if (!/^\d+$/.test(String(rawPort)) || !Number.isInteger(port) || port < 1 || port > 65535) {
-    throw new Error('PORT must be an integer between 1 and 65535');
-  }
+  const port = parsePort(config.PORT, 'PORT', 3000);
 
   return {
     NODE_ENV: nodeEnv,
@@ -38,11 +43,7 @@ export function validateEnvironment(config: Record<string, unknown>): Environmen
 }
 
 export function validateDatabaseEnvironment(config: Record<string, unknown>): DatabaseEnvironment {
-  const rawPort = config.DB_PORT ?? '5432';
-  const port = Number(rawPort);
-  if (!/^\d+$/.test(String(rawPort)) || !Number.isInteger(port) || port < 1 || port > 65535) {
-    throw new Error('DB_PORT must be an integer between 1 and 65535');
-  }
+  const port = parsePort(config.DB_PORT, 'DB_PORT', 5432);
 
   function text(name: string, fallback?: string): string {
     const value = config[name] ?? fallback;

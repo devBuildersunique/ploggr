@@ -1,6 +1,6 @@
 # Backend maintainer guide
 
-Use this guide to review M1.5–M1.7 or extend the backend. New contributors should
+Use this guide to extend the backend and review the M1.5–M1.7 milestones. The [M1.8 report](../../docs/development/foundation-validation.md) covers the integrated foundation. New contributors should
 start with [setup and verification](../README.md).
 
 [M1.5 review checklist](#m15-review-checklist) · [M1.6 review checklist](#m16-review-checklist) ·

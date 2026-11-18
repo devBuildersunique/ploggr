@@ -5,7 +5,7 @@ export default tseslint.config(
   { ignores: ['dist/**', 'coverage/**'] },
   {
     files: ['test/**/*.{mjs,cjs}'],
-    languageOptions: { globals: { process: 'readonly', console: 'readonly', URL: 'readonly' } },
+    languageOptions: { globals: { process: 'readonly', console: 'readonly', URL: 'readonly', AbortController: 'readonly' } },
   },
   js.configs.recommended,
   tseslint.configs.recommended,

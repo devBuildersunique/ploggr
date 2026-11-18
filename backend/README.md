@@ -1,13 +1,9 @@
 # Ploggr backend
 
-NestJS TypeScript API foundation with PostgreSQL/PostGIS infrastructure for
-[M1.5 / issue #6](https://github.com/devBuildersunique/ploggr/issues/6).
-M1.6 adds consistent environment-file loading and public Flutter configuration;
-see the [configuration guide](../docs/development/configuration.md).
-M1.7 adds a live database readiness endpoint used by Flutter's manual Settings
-check; see the [connection guide](../docs/development/connection-check.md).
-Run NestJS on the host and the database in Docker Compose, independently of Flutter.
-No domain entities or business tables are introduced by this milestone.
+The NestJS TypeScript API runs on the host and connects to PostgreSQL/PostGIS
+in Docker Compose. The health module exposes process liveness and a read-only
+spatial readiness check. Start with the [full-stack quickstart](../README.md#run-the-complete-foundation)
+or [M1.8 validation report](../docs/development/foundation-validation.md) for the complete app.
 
 ```text
 Browser / curl → NestJS on the host (:3000) → PostgreSQL + PostGIS in Docker (:5432)
@@ -21,7 +17,7 @@ Browser / curl → NestJS on the host (:3000) → PostgreSQL + PostGIS in Docker
 ## First-time setup
 
 These commands assume a Bash-compatible shell on Linux/x86-64, the environment
-validated for this milestone. Before starting, install Git, Node.js 24 (see
+validated for this milestone. Before starting, install Git, Node.js 24.15+ in the 24.x line (see
 [.nvmrc](.nvmrc)), npm, and Docker Engine with the Docker Compose plugin supporting
 `up --wait`. Docker must be running, and `docker info` must succeed in your shell.
 Flutter and a host PostgreSQL/psql installation are not required for backend work.
@@ -34,7 +30,7 @@ cd backend
 ```
 
 If you use nvm, run `nvm use` here. Otherwise ensure `node --version` reports
-Node.js 24. Install the locked dependencies and create local configuration:
+a supported Node.js 24.x release. Install the locked dependencies and create local configuration:
 
 ```bash
 npm ci

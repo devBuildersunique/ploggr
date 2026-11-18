@@ -49,14 +49,6 @@ Settings → Connection check**. Press the button and expect **Connected**.
 **Check again** makes a fresh request. Plain `flutter run` without configuration
 still works as an offline preview; its connection button is disabled.
 
-If `flutter` reports `unionfs failed` inside a `newgrp docker` shell, use a normal
-terminal or leave that shell with `exit`. On this laptop the installed SDK can
-also be invoked directly (this path is installation-specific):
-
-```bash
-/opt/flutter/bin/flutter run -d linux --dart-define-from-file=config/development.local.json
-```
-
 ## Android over USB
 
 Enable developer options and USB debugging, connect a data-capable cable, unlock
@@ -150,9 +142,9 @@ For the USB-authorized phone, first configure forwarding, then run:
 flutter test integration_test/connection_check_test.dart -d <device-id> --dart-define-from-file=config/development.local.json
 ```
 
-These native tests open Settings and create no domain records. They do not manage
+These native tests launch the app, navigate through the preview to Settings, and create no domain records. They do not manage
 your services. To assert the failure screen with PostgreSQL intentionally stopped,
 add `--dart-define=EXPECT_DATABASE_UNAVAILABLE=true` to the native test command.
 That declaration is test-only. Restart PostgreSQL and rerun without it to verify
-recovery. The [M1.7 maintainer checklist](../../backend/docs/maintenance.md#m17-review-checklist)
+recovery. For the complete isolated outage-and-retry check, run `node tool/validate_foundation.mjs` from the root. The [M1.7 maintainer checklist](../../backend/docs/maintenance.md#m17-review-checklist)
 describes the API contract and records validation evidence.
