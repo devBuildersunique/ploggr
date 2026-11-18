@@ -1,193 +1,6 @@
 # Backend maintainer guide
 
-Use this guide to extend the backend and review the M1.5–M1.7 milestones. The [M1.8 report](../../docs/development/foundation-validation.md) covers the integrated foundation. New contributors should
-start with [setup and verification](../README.md).
-
-[M1.5 review checklist](#m15-review-checklist) · [M1.6 review checklist](#m16-review-checklist) ·
-[M1.7 review checklist](#m17-review-checklist) ·
-[Architecture](#architecture) ·
-[Migrations](#migrations) · [Structure](#structure) ·
-[API conventions](#request-and-response-conventions)
-
-## M1.5 review checklist
-
-[M1.5 / issue #6](https://github.com/devBuildersunique/ploggr/issues/6) establishes
-database infrastructure. Authentication, User/Plog/Challenge/Hotspot tables,
-domain persistence, and production deployment are outside the M1.5 scope.
-
-Check out the proposed branch. From the repository root:
-
-```bash
-cd backend
-npm ci
-npm run build && npm run lint && npx tsc --noEmit && npm test && npm run test:database
-```
-
-Docker must be accessible in that shell. No development `.env`, running backend,
-or development database is needed for the automated tests. The integration
-runner rebuilds `dist/`, so stop servers using compiled output first.
-
-| Requirement | Review | Verification |
-| --- | --- | --- |
-| Reproducible development database | [Compose service](../compose.yaml), named volume, loopback-only port | Fresh isolated Compose startup; container recreation preserves migration history |
-| Backend connects to PostgreSQL | [Shared options](../src/database/database.config.ts), [Nest module](../src/database/database.module.ts) | Real Nest startup, HTTP health response, pool shutdown, unavailable-database startup failure |
-| PostGIS is enabled and usable | Image initialization precedes [role setup](../docker/init/20-app-role.sh) | Version query and SRID 4326 spatial operation succeed |
-| Configuration is reproducible | [.env.example](../.env.example), [validation](../src/config/environment.ts) | Unit tests cover credentials, ports, defaults, and environment precedence |
-| Migrations are established | [Foundation migration](../src/database/migrations/1794873600000-VerifyPostgis.ts) and standalone CLI | Initial run, repeated run, revert/reapply, and compiled migration commands |
-| No premature domain schema | Empty entity list; only migration metadata is application-owned | Integration test excludes extension-owned tables and expects only `migrations` in `public` |
-
-The six database tests are in
-[database.integration-spec.ts](../test/database.integration-spec.ts). The
-[integration runner](../test/run-database-integration.mjs) additionally verifies
-compiled commands, persistence, failure exits, and cleanup using an isolated
-Compose project, random host port, fixed test credentials, and disposable volume.
-It does not run migrations against the development database.
-
-For a manual review of the development instance, follow the
-[setup](../README.md#first-time-setup), [HTTP/database checks](../README.md#verification),
-and [SQL inspection](../README.md#inspect-the-database). `GET /api/health` is a
-process check and does not query PostgreSQL on each request; use `db:check` for
-live dependency verification. The application establishes its database connection
-before it starts listening.
-
-### Recorded validation
-
-On November 17, 2026, the local validation passed:
-
-- Build, lint, TypeScript checking, and all 35 unit/HTTP tests.
-- All six PostgreSQL/PostGIS integration tests.
-- Source database check and compiled migration/check commands.
-- Migration history surviving container recreation.
-- Backend exit status 1 with wrong credentials or an unavailable database.
-- Removal of the test project's containers and volume after the suite.
-
-The recorded environment was Linux/x86-64, Node.js 26.13.1, npm 11.20.0, Docker
-29.9.2, PostgreSQL 18.7, and PostGIS 3.7.0. Node.js 24 is the development target
-in `.nvmrc`; this recorded run did not separately validate Node.js 24. Test counts
-and patch versions may change; a new review must rerun the commands above.
-
-## M1.6 review checklist
-
-[M1.6 / issue #7](https://github.com/devBuildersunique/ploggr/issues/7) provides
-development configuration on top of M1.5. The
-[configuration guide](../../docs/development/configuration.md) documents its
-workflow and expected behavior. Flutter still uses offline preview data; network
-integration is covered by the M1.7 checklist below.
-
-| Requirement | Review | Verification |
-| --- | --- | --- |
-| Flutter API URL comes from configuration | [AppConfig](../../lib/core/config/app_config.dart), [provider](../../lib/core/config/app_config_provider.dart), [bootstrap](../../lib/main.dart) | Invalid URLs fail validation; no declaration preserves the preview; provider overrides work |
-| Public example and local configuration | [JSON example](../../config/development.example.json) and root ignore rules | Define-file configuration tests pass; local JSON is ignored |
-| Backend file policy is consistent | [Shared policy](../src/config/environment-file.ts), Nest module and standalone data source | Absolute backend file path, process precedence, test isolation, source/compiled path checks |
-| Secrets remain server-side | Backend example and ignored local files; Flutter example contains only an API URL | No credential values are emitted by validation errors; no local config is staged |
-| M1.5 remains functional | Existing database module and migrations | Build/lint/type checking, unit/HTTP tests, and isolated PostgreSQL/PostGIS integration suite pass |
-
-From the repository root, run Flutter checks (no server is needed):
-
-```bash
-flutter analyze
-flutter test
-flutter test --dart-define-from-file=config/development.example.json test/core/config/app_config_test.dart
-```
-
-Run the backend command chain under the M1.5 checklist above. The test suites
-include [file-policy parity tests](../src/config/environment-file.spec.ts),
-[database configuration tests](../src/database/database.config.spec.ts), and
-[Flutter configuration tests](../../test/core/config/app_config_test.dart).
-
-The M1.6 branch starts at M1.5 commit `62c5d3a` while upstream PR #61 is pending.
-Review its incremental diff against that base. After M1.5 merges, rebase only
-the M1.6 commits onto upstream `main` before opening the M1.6 PR; keep M1.5's
-existing commits and review separate from new M1.6 work.
-
-### M1.6 recorded validation
-
-On November 18, 2026, local validation passed Flutter analysis and all 148 Flutter
-tests, plus all 24 configuration tests with the committed JSON define file.
-Backend build, lint, type checking, all 40 unit/HTTP tests, and all six database
-integration tests passed. Source and compiled configuration resolved the same
-backend `.env` from the repository root, `backend/`, and an unrelated temporary
-working directory. Documentation links/anchors, command syntax, example visibility,
-and local-file ignore rules were also checked. The isolated test containers and
-volume were removed successfully.
-
-This run used Flutter 3.50.0 / Dart 3.14.0 and the Node.js/Docker versions listed
-in the M1.5 record above. It verifies configuration and backend/database behavior;
-mobile HTTP connectivity is covered by M1.7's separate validation below.
-
-## M1.7 review checklist
-
-[M1.7 / issue #8](https://github.com/devBuildersunique/ploggr/issues/8) connects
-Flutter, Dio, NestJS, and PostgreSQL/PostGIS through a manual Settings check.
-Start with the [connection guide](../../docs/development/connection-check.md),
-including the laptop, USB phone, and controlled outage instructions.
-
-| Requirement | Review | Verification |
-| --- | --- | --- |
-| Configured Dio client | [Client provider](../../lib/core/network/api_client_provider.dart) | Configured base URL/prefix, bounded timeouts, owned-client cleanup |
-| Backend queries PostgreSQL/PostGIS | [Health service](../src/modules/health/health.service.ts) | Read-only query, connectivity/PostGIS/SRID assertions, real database readiness test |
-| Flutter handles success and failures | [Connection feature](../../lib/features/connection/connection_service.dart) and Settings screen | Payload validation, HTTP/transport/timeouts, retry, missing configuration, cancellation |
-| Native phone connection | Internet permission and debug-only Android HTTP policy | USB-authorized physical phone and `adb reverse`; native integration test |
-| Complete real stack | [Native integration test](../../integration_test/connection_check_test.dart) | Real Settings button → Dio → HTTP → PostgreSQL/PostGIS on Linux and Android |
-| Foundation scope preserved | Existing entities/migrations and preview data | No new tables, authentication, or domain persistence |
-
-### Readiness contract
-
-`GET /api/health` remains the process check and returns `{"status":"ok"}` without
-querying PostgreSQL. `GET /api/health/ready` performs a fresh, read-only query using
-the existing TypeORM pool and its five-second connection/query/statement limits.
-It checks `SELECT 1`, the PostGIS version function, and an SRID 4326 operation in
-one statement. No version strings, SQL diagnostics, or credentials are returned.
-
-Readiness success is HTTP `200`, `Cache-Control: no-store`, and:
-
-```json
-{"status":"ok","database":"up","postgis":"up"}
-```
-
-Any failed query/assertion becomes HTTP `503` with the existing error envelope.
-The filter intentionally retains its generic server-error message. Flutter maps
-the status and does not parse error messages or expose raw exceptions. Another
-2xx payload is not sufficient for a green connection result.
-
-### Checks
-
-From the repository root, run `flutter analyze` and `flutter test`. Service tests
-exercise real Dio decoding with an in-memory adapter; widget tests substitute
-only the connection service and verify screen state/navigation. Neither ordinary
-suite needs network services. Run the existing backend command chain above;
-HTTP tests override the DataSource while the isolated database suite also calls
-the readiness endpoint against real PostgreSQL/PostGIS.
-
-Run the opt-in native test against a ready stack on both Linux and the authorized
-Android phone, following the [guide](../../docs/development/connection-check.md#automated-checks).
-For the outage case, stop the test database after backend startup and add
-`--dart-define=EXPECT_DATABASE_UNAVAILABLE=true` to that test command. Restart
-PostgreSQL and rerun without the flag for recovery. This declaration is test-only.
-
-The M1.7 branch starts at M1.6 commit `2276d42`; review its incremental changes
-against that boundary while prior milestones are pending. Rebase only M1.7 work
-onto upstream `main` once its dependencies have merged before submitting its PR.
-
-### M1.7 recorded validation
-
-On November 18, 2026, Flutter analysis and all 180 ordinary Flutter tests passed,
-including 27 connection service/screen tests. Backend build, lint, TypeScript
-checking, all 45 unit/HTTP tests, and all six isolated database integration tests
-passed. The real database suite also verified the readiness endpoint.
-
-The opt-in native test passed on Linux and on a physical Android phone, model
-`2312DRA50I`, running Android 16 (API 36), connected over USB with `adb reverse`.
-The phone completed success → database unavailable → success across a controlled
-PostgreSQL stop/restart. Linux also verified the success and unavailable screens.
-During the outage the same API process returned `200` for `/api/health` and `503`
-for `/api/health/ready`; after restart readiness returned `200` without restarting
-NestJS. The live tests used a separate disposable database and API port.
-
-This run used Flutter 3.50.0, Dart 3.14.0, Dio 5.11.1, Node.js 26.13.1, Docker
-29.9.2, PostgreSQL 18.7, and PostGIS 3.7.0. Documentation links/anchors, shell/JSON
-examples, Android XML, and the debug-only placement of the HTTP policy were
-checked. The temporary services and test USB forwarding were cleaned up afterward.
+Use this guide when changing an API module or migrating the database. Run the commands from `backend/`. For local setup, start with the [backend quickstart](../README.md#first-time-setup). For the current full-stack test results, see the [foundation validation report](../../docs/development/foundation-validation.md).
 
 ## Architecture
 
@@ -201,8 +14,7 @@ from the same options without starting NestJS.
   precedence over `.env`. Both resolve the same backend file independently of
   working directory and skip it when the process environment has `NODE_ENV=test`.
   NestJS additionally validates its server settings.
-- Schema synchronization, automatic migrations, and automatic extension
-  installation are disabled. The entity list is empty for M1.5.
+- Register entities and migrations explicitly. Schema synchronization, automatic migrations, and automatic extension installation are disabled.
 - Startup makes three connection attempts, with one-second retry delays and a
   five-second connection timeout. Queries/statements also have five-second
   timeouts. Future long migrations must account for those limits explicitly.
@@ -258,9 +70,7 @@ run `npm run migration:run`.
 
 ### Add a future schema change
 
-Choose one approach; these are alternatives, not consecutive setup steps.
-
-For an empty migration to edit by hand:
+To write a migration by hand, start with an empty file.
 
 ```bash
 npm run migration:create -- src/database/migrations/DescribeChange
@@ -274,7 +84,7 @@ a development database with all existing migrations applied:
 npm run migration:generate -- src/database/migrations/DescribeChange
 ```
 
-No generation is needed for M1.5's empty entity list. Review the SQL and both
+Review the SQL and both
 `up()`/`down()` methods. Import the new migration class into the shared `migrations`
 list so NestJS, source CLI tools, and compiled execution use the same definitions.
 Keep existing applied migrations unchanged; create a new migration for subsequent
@@ -308,6 +118,7 @@ src/
 test/
 ├── health.e2e-spec.ts             # Health and shared HTTP policy tests
 ├── database.integration-spec.ts   # Real PostgreSQL/PostGIS integration tests
+├── commands.mjs                   # Bounded test subprocesses and signal handling
 ├── run-database-integration.mjs   # Isolated Compose test lifecycle
 └── setup-env.cjs                  # Configuration for database-free tests
 ```
@@ -345,8 +156,112 @@ The server and HTTP tests use the same `configureApp` function.
 }
 ```
 
-These foundations use Nest's [configuration](https://docs.nestjs.com/techniques/configuration),
-[validation](https://docs.nestjs.com/techniques/validation), and
-[exception filter](https://docs.nestjs.com/exception-filters) mechanisms.
-Authentication, Plog endpoints, and Flutter API integration
-are outside this milestone.
+### Readiness contract
+
+`GET /api/health` remains the process check and returns `{"status":"ok"}` without
+querying PostgreSQL. `GET /api/health/ready` performs a fresh, read-only query using
+the existing TypeORM pool and its five-second connection/query/statement limits.
+It checks `SELECT 1`, the PostGIS version function, and an SRID 4326 operation in
+one statement. No version strings, SQL diagnostics, or credentials are returned.
+
+Readiness success is HTTP `200`, `Cache-Control: no-store`, and:
+
+```json
+{"status":"ok","database":"up","postgis":"up"}
+```
+
+Any failed query/assertion becomes HTTP `503` with the existing error envelope.
+The filter intentionally retains its generic server-error message. Flutter maps
+the status and does not parse error messages or expose raw exceptions. Another
+2xx payload is not sufficient for a green connection result.
+
+## Milestone records
+
+These results describe the code and tools exercised at the time of each review. Current reproduction steps are in the [contributor guide](../../CONTRIBUTING.md#check-and-submit).
+
+### M1.5 review checklist
+
+Database provisioning and migrations. [Issue #6](https://github.com/devBuildersunique/ploggr/issues/6)
+
+| Requirement | Review | Verification |
+| --- | --- | --- |
+| Reproducible development database | [Compose service](../compose.yaml), named volume, loopback-only port | Fresh isolated Compose startup; container recreation preserves migration history |
+| Backend connects to PostgreSQL | [Shared options](../src/database/database.config.ts), [Nest module](../src/database/database.module.ts) | Real Nest startup, HTTP health response, pool shutdown, unavailable-database startup failure |
+| PostGIS is enabled and usable | Image initialization precedes [role setup](../docker/init/20-app-role.sh) | Version query and SRID 4326 spatial operation succeed |
+| Configuration is reproducible | [.env.example](../.env.example), [validation](../src/config/environment.ts) | Unit tests cover credentials, ports, defaults, and environment precedence |
+| Migrations are established | [Foundation migration](../src/database/migrations/1794873600000-VerifyPostgis.ts) and standalone CLI | Initial run, repeated run, revert/reapply, and compiled migration commands |
+| No premature domain schema | Empty entity list; only migration metadata is application-owned | Integration test excludes extension-owned tables and expects only `migrations` in `public` |
+
+#### Recorded validation
+
+The 17 November 2026 run covered the following checks.
+
+- Build, lint, TypeScript checking, and all 35 unit/HTTP tests.
+- All six PostgreSQL/PostGIS integration tests.
+- Source database check and compiled migration/check commands.
+- Migration history surviving container recreation.
+- Backend exit status 1 with wrong credentials or an unavailable database.
+- Removal of the test project's containers and volume after the suite.
+
+The recorded environment was Linux/x86-64, Node.js 26.13.1, npm 11.20.0, Docker
+29.9.2, PostgreSQL 18.7, and PostGIS 3.7.0. M1.8 later verified the Node 24 baseline.
+
+### M1.6 review checklist
+
+Environment configuration. [Issue #7](https://github.com/devBuildersunique/ploggr/issues/7)
+
+| Requirement | Review | Verification |
+| --- | --- | --- |
+| Flutter API URL comes from configuration | [AppConfig](../../lib/core/config/app_config.dart), [provider](../../lib/core/config/app_config_provider.dart), [bootstrap](../../lib/main.dart) | Invalid URLs fail validation; no declaration preserves the preview; provider overrides work |
+| Public example and local configuration | [JSON example](../../config/development.example.json) and root ignore rules | Define-file configuration tests pass; local JSON is ignored |
+| Backend file policy is consistent | [Shared policy](../src/config/environment-file.ts), Nest module and standalone data source | Absolute backend file path, process precedence, test isolation, source/compiled path checks |
+| Secrets remain server-side | Backend example and ignored local files; Flutter example contains only an API URL | No credential values are emitted by validation errors; no local config is staged |
+| M1.5 remains functional | Existing database module and migrations | Build/lint/type checking, unit/HTTP tests, and isolated PostgreSQL/PostGIS integration suite pass |
+
+#### M1.6 recorded validation
+
+On 18 November 2026, local validation passed Flutter analysis and all 148 Flutter
+tests, plus all 24 configuration tests with the committed JSON define file.
+Backend build, lint, type checking, all 40 unit/HTTP tests, and all six database
+integration tests passed. Source and compiled configuration resolved the same
+backend `.env` from the repository root, `backend/`, and an unrelated temporary
+working directory. Documentation links/anchors, command syntax, example visibility,
+and local-file ignore rules were also checked. The isolated test containers and
+volume were removed successfully.
+
+This run used Flutter 3.50.0 / Dart 3.14.0 and the Node.js/Docker versions listed
+in the M1.5 record above. It verifies configuration and backend/database behavior;
+mobile HTTP connectivity is covered by M1.7's separate validation below.
+
+### M1.7 review checklist
+
+Flutter, API and database communication. [Issue #8](https://github.com/devBuildersunique/ploggr/issues/8)
+
+| Requirement | Review | Verification |
+| --- | --- | --- |
+| Configured Dio client | [Client provider](../../lib/core/network/api_client_provider.dart) | Configured base URL/prefix, bounded timeouts, owned-client cleanup |
+| Backend queries PostgreSQL/PostGIS | [Health service](../src/modules/health/health.service.ts) | Read-only query, connectivity/PostGIS/SRID assertions, real database readiness test |
+| Flutter handles success and failures | [Connection feature](../../lib/features/connection/connection_service.dart) and Settings screen | Payload validation, HTTP/transport/timeouts, retry, missing configuration, cancellation |
+| Native phone connection | Internet permission and debug-only Android HTTP policy | USB-authorized physical phone and `adb reverse`; native integration test |
+| Complete real stack | [Native integration test](../../integration_test/connection_check_test.dart) | Real Settings button → Dio → HTTP → PostgreSQL/PostGIS on Linux and Android |
+| Foundation scope preserved | Existing entities/migrations and preview data | No new tables, authentication, or domain persistence |
+
+#### M1.7 recorded validation
+
+On 18 November 2026, Flutter analysis and all 180 ordinary Flutter tests passed,
+including 27 connection service/screen tests. Backend build, lint, TypeScript
+checking, all 45 unit/HTTP tests, and all six isolated database integration tests
+passed. The real database suite also verified the readiness endpoint.
+
+The opt-in native test passed on Linux and on a physical Android phone, model
+`2312DRA50I`, running Android 16 (API 36), connected over USB with `adb reverse`.
+The phone completed success → database unavailable → success across a controlled
+PostgreSQL stop/restart. Linux also verified the success and unavailable screens.
+During the outage the same API process returned `200` for `/api/health` and `503`
+for `/api/health/ready`; after restart readiness returned `200` without restarting
+NestJS. The live tests used a separate disposable database and API port.
+
+This run used Flutter 3.50.0, Dart 3.14.0, Dio 5.11.1, Node.js 26.13.1, Docker
+29.9.2, PostgreSQL 18.7, and PostGIS 3.7.0. Documentation links/anchors, shell/JSON
+examples, Android XML, and the debug-only placement of the HTTP policy were
+checked. The temporary services and test USB forwarding were cleaned up afterward.

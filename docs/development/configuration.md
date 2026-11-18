@@ -1,77 +1,23 @@
 # Development configuration
 
-[M1.6 / issue #7](https://github.com/devBuildersunique/ploggr/issues/7) establishes
-configuration for Flutter, NestJS, and PostgreSQL/PostGIS. Start here when choosing
-an API address or setting up a new development environment.
+Run `make setup` from the repository root to install dependencies and create the two local files listed below. Rerunning setup preserves your edits. The offline preview works without either file. [Project quickstart](../../README.md#run-the-complete-foundation)
 
-[Backend setup](../../backend/README.md#first-time-setup) ·
-[Flutter setup](#flutter-setup) · [Device addresses](#device-addresses) ·
-[Validation](#validation) · [Maintainer checklist](../../backend/docs/maintenance.md#m16-review-checklist)
-
-## Which configuration do I need?
-
-| Work | Configuration | Required services |
-| --- | --- | --- |
-| Run the existing Flutter offline preview | None; use `flutter run` | None |
-| Configure Flutter's manual connection check | Ignored `config/development.local.json` | Backend and database for live checking |
-| Run the backend against the development database | Ignored `backend/.env` or process variables | PostgreSQL/PostGIS via Docker Compose |
-| Run backend unit/HTTP tests | Explicit test configuration supplied by the tests | None |
-| Run database integration tests | Isolated configuration supplied by the runner | Docker access |
-
-M1.6 established Flutter's API configuration. M1.7 adds a Dio client and a manual
-**Settings → Connection check** that queries the backend and PostgreSQL/PostGIS.
-See the [connection guide](connection-check.md) for laptop and Android USB setup.
-Other screens continue using local preview data. No requests run automatically.
+| Consumer | Committed example | Local file | When changes take effect |
+| --- | --- | --- | --- |
+| NestJS, database CLI and Compose | [Backend environment](../../backend/.env.example) | `backend/.env` | Restart Nest or rerun the CLI. Container initialization settings apply to a new volume. |
+| Flutter | [Public build configuration](../../config/development.example.json) | `config/development.local.json` | Stop and relaunch the app with the define file, or rebuild the artifact. |
 
 ## Backend setup and precedence
 
-Follow the [backend setup guide](../../backend/README.md#first-time-setup) and its
-[complete variable reference](../../backend/README.md#configuration).
-`DB_USER` and `DB_PASSWORD` are required by NestJS and database tools;
-`POSTGRES_PASSWORD` is separately required by Compose for its administrator role.
-The remaining server/database settings have documented local defaults.
+Nest and the database CLI resolve `backend/.env` from both the TypeScript source and compiled JavaScript entry points. Existing process variables take precedence. An invalid explicit value fails validation. When the process sets `NODE_ENV=test`, both skip the file and use the supplied test environment. Automated database tests provision their own Compose project.
 
-The existing [backend example](../../backend/.env.example) remains the template:
+Run direct backend and Compose commands inside `backend/`. For example, `PORT=3001 npm run start:dev` overrides the API port for a single run. `HOST` controls where Nest listens. `DB_HOST` tells Nest where to reach PostgreSQL. The client-facing API address depends on the device.
 
-- Source and compiled Node.js entrypoints resolve the same `backend/.env` file,
-  independently of their current working directory.
-- Existing process environment values win over that file. An explicit invalid
-  process value causes validation failure; it does not fall back to a file value.
-- If the process sets `NODE_ENV=test`, both NestJS and database CLI tools skip
-  `.env`. Tests and the integration runner provide their own values.
-- A missing file is allowed when required settings are supplied by the process.
-- Compose reads `.env` from `backend/` under the documented commands and also
-  gives process environment values precedence. Continue running npm/Compose
-  commands from `backend/`; application file resolution does not change Compose's
-  own working-directory rules.
-
-If upgrading an existing M1.4/M1.5 checkout, preserve your `.env` and copy only
-missing keys from the example. No variables are renamed in M1.6. Choose database
-credentials before creating the volume: changing `.env` does not update existing
-database roles. See [troubleshooting](../../backend/README.md#troubleshooting)
-before resetting any data you need.
-
-For a one-off backend override from `backend/`:
-
-```bash
-PORT=3001 npm run start:dev
-```
-
-`HOST` is the address NestJS listens on. `DB_HOST` is where NestJS finds PostgreSQL.
-Neither is the address Flutter should blindly copy; use the table below for the
-Flutter device's view of the development computer.
+Choose the application role, database name and both passwords before creating the database. Initialization scripts run once on a fresh volume. Changing an existing role's password requires an administrator SQL change. Multiple checkouts running concurrently need distinct Compose project names and host ports. [Backend variables](../../backend/README.md#configuration) · [Database troubleshooting](../../backend/README.md#troubleshooting)
 
 ## Flutter setup
 
-Run these commands from the repository root after installing Flutter dependencies:
-
-```bash
-flutter pub get
-[ -f config/development.local.json ] || cp config/development.example.json config/development.local.json
-```
-
-Edit your local JSON for the intended device. The current example targets the
-laptop or an Android phone using USB forwarding:
+The default local file targets a Linux desktop or a USB-forwarded Android device.
 
 ```json
 {
@@ -79,67 +25,28 @@ laptop or an Android phone using USB forwarding:
 }
 ```
 
-Launch with the file:
-
-```bash
-flutter run --dart-define-from-file=config/development.local.json
-```
-
-Use `-d linux` for the local desktop target if multiple devices are available.
-The file is input to the Flutter compiler, not a runtime asset. Stop and rerun
-the application after changing it; hot reload does not update build declarations.
-Use the same `--dart-define-from-file` option for a configured Flutter build.
-No additional package, asset declaration, or native build flavor is needed.
+Run `make app` from the root. It selects Linux and passes the JSON with `--dart-define-from-file`. Use `make app DEVICE=emulator-5554` with your actual device ID and URL. Use the same Flutter flag for a configured build. The API URL is compiled into the app, so changing it requires a restart or rebuild.
 
 ### API URL rules
 
-`API_BASE_URL` is the only Flutter configuration key in this milestone:
+`AppConfig` accepts an absolute HTTP or HTTPS URL with a hostname and valid port. Credentials, whitespace, a query string, and fragments are rejected at startup. Validation errors name the key without echoing its value. Include the backend's `/api/` prefix. The parser normalizes a missing trailing slash so the relative path `health/ready` preserves that prefix.
 
-- Omitted: `AppConfig.apiBaseUrl` is null and the offline preview still works.
-- Supplied: require a nonempty absolute HTTP/HTTPS URL with a hostname and valid
-  port, without credentials, query parameters, fragments, or whitespace.
-- A missing trailing slash is added. Include the backend's `/api/` prefix in the
-  configured address so the relative `health/ready` route resolves correctly.
-- Invalid supplied values throw a `FormatException` before the widget tree is
-  created. The message names `API_BASE_URL` without echoing the supplied value.
-
-The immutable `AppConfig` is available through `appConfigProvider`. `main()`
-validates and installs it at startup; tests can override the provider with
-explicit values. A configured URL allows the manual check; it does not trigger
-requests at startup.
+When the key is omitted, Flutter runs the offline preview and the connection button is disabled. A configured app sends its first readiness request when the user taps **Check connection**. Tests can override `appConfigProvider` explicitly.
 
 ## Device addresses
 
-These examples use the default backend port 3000 and `/api/` prefix. Adjust both
-the backend port and Flutter URL together when choosing another port.
-
-| Flutter target | `API_BASE_URL` | Backend listening address |
+| Flutter target | API URL with default port | Nest setting |
 | --- | --- | --- |
-| Linux desktop on the development computer | `http://127.0.0.1:3000/api/` | Default `HOST=127.0.0.1` |
-| Physical Android phone with `adb reverse tcp:3000 tcp:3000` | `http://127.0.0.1:3000/api/` | Default `HOST=127.0.0.1` |
-| Android Emulator on that computer | `http://10.0.2.2:3000/api/` | Default `HOST=127.0.0.1` |
-| Physical device on the same LAN | `http://<computer-LAN-IP>:3000/api/` | Set `HOST=0.0.0.0` and restart NestJS |
+| Linux desktop | `http://127.0.0.1:3000/api/` | `HOST=127.0.0.1` |
+| Android emulator | `http://10.0.2.2:3000/api/` | `HOST=127.0.0.1` |
+| Physical Android device with USB forwarding | `http://127.0.0.1:3000/api/` | `HOST=127.0.0.1` |
+| Device on the same LAN | `http://<computer-LAN-IP>:3000/api/` | `HOST=0.0.0.0` |
 
-For a physical device, replace the placeholder with the computer's actual LAN
-address and ensure the local network/firewall permits the backend port. `0.0.0.0`
-is a listening address, not a destination URL. A device's `127.0.0.1` points at
-that device, unless USB forwarding maps the API port. M1.7 adds Android debug
-HTTP policy and validates laptop/USB-phone connectivity. The emulator and LAN
-rows are alternative addresses, not a claim those network paths were tested.
+For LAN access, use the computer's actual address and allow the API port on the trusted local network. Database access stays on loopback. M1.8 verified Linux and the Android emulator. M1.7 verified a USB-forwarded Android phone. [USB forwarding](connection-check.md#android-over-usb) · [Validation evidence](foundation-validation.md#validation-evidence)
 
 ## Public configuration and secrets
 
-- Commit public templates: `config/development.example.json` and
-  `backend/.env.example` contain examples only.
-- Keep local values out of Git: `config/*.local.json`, `.env`, and `.env.*` are
-  ignored, with `.env.example` explicitly allowed.
-- Flutter build declarations can be inspected in the distributed application.
-  Put only public settings such as the API URL there, even if the local file is
-  ignored. Never put database passwords, signing keys, or server secrets in it.
-- Backend credentials belong in the ignored backend `.env` or the process
-  environment. Do not publish `.env` files or dump configuration into logs/PRs.
-
-Confirm the local files are ignored without printing their contents:
+Flutter build defines are visible to anyone with the app. Use them only for public settings. Keep database credentials on the server. Git ignores local environment files, local JSON, and signing material. Check those rules from the repository root without printing file contents.
 
 ```bash
 git check-ignore backend/.env config/development.local.json
@@ -147,26 +54,8 @@ git check-ignore backend/.env config/development.local.json
 
 ## Validation
 
-From the repository root:
+After setup, run `make check` from the repository root. To verify the public JSON-to-provider path specifically, run the following command. The full `make validate` workflow also runs this case.
 
 ```bash
-flutter analyze
-flutter test
 flutter test --dart-define-from-file=config/development.example.json test/core/config/app_config_test.dart
 ```
-
-The normal suite checks the configuration-free preview; the second configuration
-test run checks the JSON-to-compiler-to-provider path using the public example.
-Both work without a backend or database. URL parsing tests also cover invalid
-values, port limits, credential exclusion, and relative API path resolution.
-
-From `backend/`, with dependencies installed and Docker available:
-
-```bash
-npm run build && npm run lint && npx tsc --noEmit && npm test && npm run test:database
-```
-
-See the [M1.6 review checklist](../../backend/docs/maintenance.md#m16-review-checklist)
-for the evidence expected before merging. These checks validate configuration and
-preserve the M1.5 database foundation. For M1.7's live Flutter-to-backend test,
-use the [connection guide](connection-check.md#automated-checks).

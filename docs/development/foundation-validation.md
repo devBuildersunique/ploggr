@@ -1,6 +1,6 @@
 # M1.8 foundation validation
 
-[Issue #9](https://github.com/devBuildersunique/ploggr/issues/9) requires a developer to bring up the database, start Nest and Flutter, and obtain a successful database health check through the app. Use the [root quickstart](../../README.md#run-the-complete-foundation) to run the stack or `node tool/validate_foundation.mjs` from the root to validate it in isolation.
+Run `make validate` from the repository root to exercise the isolated stack. To start the app interactively, follow the root quickstart. [Project quickstart](../../README.md#run-the-complete-foundation) · [M1.8 acceptance criteria](https://github.com/devBuildersunique/ploggr/issues/9)
 
 **Ready for local M2 development on Linux and Android.** The implementation at `0253ccc73c69`, based on M1.7 `e6abeeb`, passed the full runner from a fresh clone and the developer quickstart from a second fresh clone. Both began without local project dependencies, build outputs, environment files, or a pre-initialized database. They used the host's installed SDKs and package caches.
 
@@ -19,6 +19,12 @@ Validated on 18 November 2026 with Linux x86-64, Flutter 3.50.0, Dart 3.14.0, np
 
 The GitHub Actions workflow passed actionlint 1.7.12. Its Linux validation command was exercised locally under Xvfb. A hosted Actions result requires a pull request or workflow dispatch. The live M1.8 platform evidence covers Linux and the Android emulator. Earlier physical Android evidence is in the [M1.7 record](../../backend/docs/maintenance.md#m17-recorded-validation).
 
+### Developer workflow follow-up
+
+On 18 November 2026, two fresh checkouts of `b4daa69` verified the root commands under Node 24.22.3 on Linux. One ran `make validate` through both outages and recoveries. The other ran `make setup` twice, compared both customized configuration files byte for byte, and started the documented stack with `make api` and `make app`. Native UI checks displayed **Connected** on Linux and the Android 17 emulator (API 37). The emulator also built, installed and launched the ordinary debug APK through `make app DEVICE=emulator-5582`. After shutdown, `make down` retained its named volume.
+
+Before the follow-up, a shell exporting invalid `PORT` and `DB_PORT` values caused all 13 HTTP tests to fail before startup. Giving ordinary Jest tests explicit server and database settings fixed the failure. With the same conflicting values exported, `make check` passed all 180 Flutter tests and all 45 backend tests. Real database tests continued using their separate Compose environment.
+
 ## Engineering audit
 
 | Area | Findings and disposition |
@@ -26,6 +32,7 @@ The GitHub Actions workflow passed actionlint 1.7.12. Its Linux validation comma
 | Repository and assets | Reviewed the M1.7 inventory of 261 tracked files across the app, backend, six platform runners, tools, tests, assets, and documentation. Removed the superseded orange logo, unused popup wrappers, unused Cupertino icon package, ten redundant directory markers, and obsolete ignore rules for Dart source files. Kept the four in-use images, font and license, design references, and intentional empty architecture directories. |
 | Code and architecture | The production app already has a Riverpod scope, feature controllers, a shared Dio provider, and central go_router routes. Nest and its CLI already share TypeORM options. Consolidated duplicate backend port validation. M2 can add a Nest module, explicit migrations, and a Flutter feature using these extension points. |
 | Configuration and isolation | Flutter receives only a public API URL. Nest and its CLI read the backend environment, with process variables taking precedence. The ordinary test suite supplies its own configuration. Compose publishes PostgreSQL on loopback, provisions PostGIS as administrator, and connects the API using a non-superuser application role. Android permits development HTTP in the debug manifest, including the emulator and USB/LAN development paths. |
+| Developer commands and maintenance | The profile menu, registered routes and detail screens now use the same typed destinations. The root Makefile delegates to Flutter, npm and the existing validation runner. The contributor guide identifies the owning code, tests and documentation for each layer. |
 | Tooling and tests | Declared the Flutter floor from the resolved package set and aligned Node engines with the locked build dependencies. Preserved the Dart source language level to avoid unrelated reformatting. The native test now launches the production entry point and navigates to Settings. The isolated runner verifies that the same Flutter session can retry after both kinds of outage. |
 | Developer documentation | Replaced the Flutter-only entry instructions with a full-stack quickstart, offline path, architecture map, migration references, verification commands, and contribution guidance. The earlier milestone and design records retain their historical scope. Running the optional visual-capture driver refreshes tracked reference screenshots. |
 
@@ -45,7 +52,6 @@ dart pub outdated --show-all --json
 docker image inspect postgis/postgis:18-3.7 --format '{{json .RepoDigests}}'
 grype docker:postgis/postgis:18-3.7
 ```
-
 
 ## Handoff to M2
 

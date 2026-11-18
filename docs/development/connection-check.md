@@ -1,150 +1,56 @@
-# Flutter → backend → database connection
+# Check the Flutter connection
 
-[M1.7 / issue #8](https://github.com/devBuildersunique/ploggr/issues/8) adds
-**Profile → Settings → Connection check**. Press **Check connection** to contact
-the configured backend. **Connected** means PostgreSQL and PostGIS also passed
-the backend's read-only readiness query. No requests run automatically, and no
-preview activity, profile, password, or authentication data is sent.
+Use **Profile → Settings → Connection check** to verify that the app can reach NestJS and that Nest can query PostgreSQL and PostGIS. The action sends a readiness request. Preview activity and profile information stay on the device. [Project quickstart](../../README.md#run-the-complete-foundation)
 
 ## Laptop setup
 
-Start the database and NestJS using the
-[backend guide](../../backend/README.md#first-time-setup). Keep `npm run start:dev`
-running. From another terminal, check the default API:
+From the repository root, run `make setup` once, then run `make api` in one terminal and `make app` in another. From the splash screen, choose **Skip → Explore the preview → Profile → Settings → Connection check**. Press **Check connection** and expect **Connected**. Press **Check again** to issue a fresh request.
+
+To inspect the backend independently with the default port, run the following command.
 
 ```bash
 curl --fail-with-body -i http://127.0.0.1:3000/api/health/ready
 ```
 
-Expect HTTP `200`, `Cache-Control: no-store`, and:
-
-```json
-{"status":"ok","database":"up","postgis":"up"}
-```
-
-From the repository root:
-
-```bash
-flutter pub get
-[ -f config/development.local.json ] || cp config/development.example.json config/development.local.json
-```
-
-The current example targets the laptop or a USB-forwarded phone. If your local
-file was copied from M1.6's Android Emulator example, edit it to:
-
-```json
-{
-  "API_BASE_URL": "http://127.0.0.1:3000/api/"
-}
-```
-
-Launch the desktop app:
-
-```bash
-flutter run -d linux --dart-define-from-file=config/development.local.json
-```
-
-Advance through onboarding, choose **Explore the preview**, then open **Profile →
-Settings → Connection check**. Press the button and expect **Connected**.
-**Check again** makes a fresh request. Plain `flutter run` without configuration
-still works as an offline preview; its connection button is disabled.
+Expect HTTP 200, `Cache-Control: no-store`, and `{"status":"ok","database":"up","postgis":"up"}`. If curl succeeds and Flutter fails, check the device's API URL and relaunch with the corrected build configuration. [Device addresses](configuration.md#device-addresses)
 
 ## Android over USB
 
-Enable developer options and USB debugging, connect a data-capable cable, unlock
-the phone, and authorize the laptop. Check its status:
+Enable USB debugging, connect and unlock the phone, and authorize the computer. Run `adb devices -l` and use the ID of the entry whose status is `device`. In the following example, set `DEVICE_ID` to that ID.
 
 ```bash
-adb devices -l
+adb -s "$DEVICE_ID" reverse tcp:3000 tcp:3000
+adb -s "$DEVICE_ID" reverse --list
+make app DEVICE="$DEVICE_ID"
 ```
 
-It must be listed as `device`, not `unauthorized` or `offline`. Replace
-`<device-id>` with the entry's first column:
+Use `http://127.0.0.1:3000/api/` in the local Flutter JSON. Forwarding maps the phone's port to the host API. Repeat the mapping after reconnecting USB. If you choose a different API port, update both ports and the JSON. Remove your mapping when finished.
 
 ```bash
-adb -s <device-id> reverse tcp:3000 tcp:3000
-adb -s <device-id> reverse --list
-flutter run -d <device-id> --dart-define-from-file=config/development.local.json
+adb -s "$DEVICE_ID" reverse --remove tcp:3000
 ```
 
-Use the same `127.0.0.1` URL as the laptop. Forwarding maps the phone's port 3000
-to the laptop; NestJS can retain `HOST=127.0.0.1`. Repeat forwarding after a USB
-reconnection. If you change the API port, update both forwarding ports and the
-Flutter URL together. Remove the forwarding rule when finished:
-
-```bash
-adb -s <device-id> reverse --remove tcp:3000
-```
-
-The main Android manifest declares Internet access. Debug builds additionally
-permit local HTTP through a debug-only network security configuration; release
-configuration does not include that allowance. The target SDK is unchanged.
-Linux/Android native clients need no browser CORS configuration. iOS/web
-validation is outside M1.7. See [device addresses](configuration.md#device-addresses)
-for emulator and LAN alternatives.
+Android declares internet access in the main manifest. The debug build additionally permits local HTTP. The emulator can use the host alias `10.0.2.2` directly. [Configuration reference](configuration.md#device-addresses)
 
 ## Failure and recovery
 
-| Screen state | Next step |
+| Screen state | What to check |
 | --- | --- |
-| No server configured | Supply the JSON define file and restart Flutter. No request was sent. |
-| Server unavailable | Check NestJS, the API address/port, and USB forwarding. |
-| Connection timed out | Check server/database availability and retry. |
-| Database unavailable | Readiness returned `503`; inspect the database and retry after recovery. |
-| Unexpected server response | Confirm the API URL includes `/api/` and points at the correct server. |
-| Server check failed | Another HTTP error occurred, such as a wrong route (`404`). |
+| No server configured | Launch the app with a public API URL. The offline preview remains available. |
+| Server unavailable | Check the API process, host, port, and USB forwarding. |
+| Connection timed out | Check the network and service health, then retry. |
+| Database unavailable | Nest returned HTTP 503. Check PostgreSQL and PostGIS, then press **Check again**. |
+| Unexpected server response | Verify the response comes from the configured Ploggr readiness endpoint. |
+| Server check failed | Inspect the HTTP status. A wrong prefix can produce a 404. |
 
-For a controlled outage test, keep Flutter and NestJS running. Stop a disposable
-development database **after** backend startup, from `backend/`:
-
-```bash
-docker compose stop database
-```
-
-Press **Check again** and expect **Database unavailable**. `/api/health` still
-returns `200`; `/api/health/ready` returns `503` with the standard error envelope.
-Initial backend startup requires the database to be available.
-
-Restore PostgreSQL from `backend/`:
-
-```bash
-npm run db:up
-```
-
-Press **Check again** and expect **Connected**. These commands preserve the data
-volume but interrupt database access while stopped.
+Use `make validate` for an isolated outage exercise. For a manual check against a disposable development stack, start Nest while the database is healthy. From `backend/`, run `docker compose stop database`. Liveness at `/api/health` still returns 200 and readiness returns 503. Press **Check again** to see **Database unavailable**. Run `npm run db:up` and retry to see **Connected**. These operations retain the volume.
 
 ## Automated checks
 
-From the repository root, run the ordinary tests (no backend needed):
-
-```bash
-flutter analyze
-flutter test
-```
-
-From `backend/`, run backend checks and the isolated database integration suite:
-
-```bash
-npm run build && npm run lint && npx tsc --noEmit && npm test && npm run test:database
-```
-
-The opt-in native test uses real Dio requests against the running stack. From
-the repository root, with NestJS and PostgreSQL ready:
+From the repository root, run a native test against an already running stack with the device-appropriate config file.
 
 ```bash
 flutter test integration_test/connection_check_test.dart -d linux --dart-define-from-file=config/development.local.json
 ```
 
-For the USB-authorized phone, first configure forwarding, then run:
-
-```bash
-flutter test integration_test/connection_check_test.dart -d <device-id> --dart-define-from-file=config/development.local.json
-```
-
-These native tests launch the app, navigate through the preview to Settings, and create no domain records. They do not manage
-your services. To assert the failure screen with PostgreSQL intentionally stopped,
-add `--dart-define=EXPECT_DATABASE_UNAVAILABLE=true` to the native test command.
-That declaration is test-only. Restart PostgreSQL and rerun without it to verify
-recovery. For the complete isolated outage-and-retry check, run `node tool/validate_foundation.mjs` from the root. The [M1.7 maintainer checklist](../../backend/docs/maintenance.md#m17-review-checklist)
-describes the API contract and records validation evidence.
+Substitute the Android device ID for `linux` to exercise the same flow on a phone or emulator. For a deliberate database outage, append `--dart-define=EXPECT_DATABASE_UNAVAILABLE=true` and restore the database afterward. The full runner verifies the database and API outages, both recoveries and the offline path. [Foundation validation report](foundation-validation.md)
