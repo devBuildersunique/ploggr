@@ -1,4 +1,12 @@
-export interface Environment {
+export interface DatabaseEnvironment {
+  DB_HOST: string;
+  DB_PORT: number;
+  DB_NAME: string;
+  DB_USER: string;
+  DB_PASSWORD: string;
+}
+
+export interface Environment extends DatabaseEnvironment {
   NODE_ENV: 'development' | 'test' | 'production';
   HOST: string;
   PORT: number;
@@ -21,5 +29,35 @@ export function validateEnvironment(config: Record<string, unknown>): Environmen
     throw new Error('PORT must be an integer between 1 and 65535');
   }
 
-  return { NODE_ENV: nodeEnv, HOST: host.trim(), PORT: port };
+  return {
+    NODE_ENV: nodeEnv,
+    HOST: host.trim(),
+    PORT: port,
+    ...validateDatabaseEnvironment(config),
+  };
+}
+
+export function validateDatabaseEnvironment(config: Record<string, unknown>): DatabaseEnvironment {
+  const rawPort = config.DB_PORT ?? '5432';
+  const port = Number(rawPort);
+  if (!/^\d+$/.test(String(rawPort)) || !Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error('DB_PORT must be an integer between 1 and 65535');
+  }
+
+  function text(name: string, fallback?: string): string {
+    const value = config[name] ?? fallback;
+    if (typeof value !== 'string' || value.trim().length === 0) {
+      throw new Error(`${name} must be a non-empty string`);
+    }
+    // Passwords are used verbatim, including intentional surrounding whitespace.
+    return name === 'DB_PASSWORD' ? value : value.trim();
+  }
+
+  return {
+    DB_HOST: text('DB_HOST', '127.0.0.1'),
+    DB_PORT: port,
+    DB_NAME: text('DB_NAME', 'ploggr'),
+    DB_USER: text('DB_USER'),
+    DB_PASSWORD: text('DB_PASSWORD'),
+  };
 }
