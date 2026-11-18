@@ -1,4 +1,5 @@
-import { Body, Controller, Get, INestApplication, Logger, Module, Post } from '@nestjs/common';
+import { Body, Controller, Get, Global, INestApplication, Logger, Module, Post } from '@nestjs/common';
+import { DataSource } from 'typeorm';
 import { Test } from '@nestjs/testing';
 import { IsString, MinLength } from 'class-validator';
 import request from 'supertest';
@@ -6,7 +7,10 @@ import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
 import { DatabaseModule } from '../src/database/database.module';
 
-@Module({})
+const query = jest.fn();
+
+@Global()
+@Module({ providers: [{ provide: DataSource, useValue: { query } }], exports: [DataSource] })
 class TestDatabaseModule {}
 
 class ExampleDto {
@@ -46,11 +50,50 @@ describe('API foundation (HTTP)', () => {
     await app?.close();
   });
 
+  beforeEach(() => {
+    query.mockReset();
+    query.mockResolvedValue([{ connection: 1, postgis: '3.7', srid: 4326 }]);
+  });
+
   it('GET /api/health returns HTTP 200 with JSON status', async () => {
     await request(app.getHttpServer())
       .get('/api/health')
       .expect('Content-Type', /json/)
       .expect(200, { status: 'ok' });
+    expect(query).not.toHaveBeenCalled();
+  });
+
+  it('checks real dependency capabilities for every readiness request without exposing versions', async () => {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      await request(app.getHttpServer()).get('/api/health/ready')
+        .expect('Cache-Control', 'no-store')
+        .expect(200, { status: 'ok', database: 'up', postgis: 'up' });
+    }
+    expect(query).toHaveBeenCalledTimes(2);
+  });
+
+  it.each([
+    new Error('private_driver_details password=private_password'),
+    [{ connection: 1, postgis: '', srid: 4326 }],
+    [{ connection: 1, postgis: '3.7', srid: 0 }],
+    [],
+  ])('returns sanitized 503 errors when readiness fails: case %#', async (result) => {
+    const log = jest.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
+    try {
+      if (result instanceof Error) query.mockRejectedValueOnce(result);
+      else query.mockResolvedValueOnce(result);
+      const response = await request(app.getHttpServer()).get('/api/health/ready').expect(503);
+      expect(response.headers['cache-control']).toBe('no-store');
+      expect(response.body).toEqual({
+        statusCode: 503, error: 'Service Unavailable', message: 'Internal server error',
+        path: '/api/health/ready', timestamp: expect.any(String),
+      });
+      expect(JSON.stringify(response.body)).not.toContain('private_');
+      expect(JSON.stringify(log.mock.calls)).not.toContain('private_');
+      await request(app.getHttpServer()).get('/api/health').expect(200, { status: 'ok' });
+    } finally {
+      log.mockRestore();
+    }
   });
 
   it.each(['/health', '/api/missing'])('returns consistent 404 errors for %s', async (path) => {

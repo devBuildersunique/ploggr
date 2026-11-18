@@ -1,11 +1,10 @@
-import { config } from 'dotenv';
 import type { DataSourceOptions } from 'typeorm';
 import { validateDatabaseEnvironment, type DatabaseEnvironment } from '../config/environment';
+import { loadEnvironmentFile } from '../config/environment-file';
 import { VerifyPostgis1794873600000 } from './migrations/1794873600000-VerifyPostgis';
 
-export function loadDatabaseEnvironment(envFile = '.env'): DatabaseEnvironment {
-  // Like Nest ConfigModule, existing process variables take precedence over .env.
-  config({ path: envFile, quiet: true });
+export function loadDatabaseEnvironment(envFile?: string): DatabaseEnvironment {
+  loadEnvironmentFile(envFile);
   return validateDatabaseEnvironment(process.env);
 }
 

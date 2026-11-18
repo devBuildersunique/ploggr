@@ -1,7 +1,6 @@
-# Ploggr redesign validation
+# Flutter preview validation
 
-Validated on 17 November 2026. This is a complete frontend preview, with the
-NestJS backend and database foundation unchanged.
+This record documents the 17 November 2026 UI review. The counts and device observations below belong to that revision. For current full-stack results, see the [foundation validation report](../development/foundation-validation.md).
 
 ## Delivered screens
 
@@ -28,6 +27,8 @@ Additional profile destinations: activity, saved litter spots, settings, help,
 and about. All are navigable, including from direct routes.
 
 ## Reusable design system and architecture
+
+The paths below are relative to `lib/`.
 
 - `core/constants/app_colors.dart`: forest, leaf, primary green, off-white,
   muted text, borders, and semantic accent colors.
@@ -69,8 +70,7 @@ and about. All are navigable, including from direct routes.
   Splash → onboarding → Skip → Explore the preview → Home was verified with
   Android input and UI inspection; no app runtime exceptions were logged.
 
-The existing Android Gradle Plugin/Kotlin versions produce forward-compatibility
-warnings, but the build succeeds. Build tooling versions were not changed.
+The Android build succeeded with forward-compatibility warnings from the Gradle tooling used for that review.
 
 ## Device and visual review
 
@@ -91,10 +91,12 @@ Device interaction testing exposed a saved-session SnackBar obscuring the camera
 shutter; navigation helpers now remove prior-screen feedback before navigating,
 and the regression has a dedicated widget test.
 
-Reproduce:
+### Reproduce the captures
+
+Run these commands from the repository root with an Android emulator connected. Substitute its ID for `emulator-5554`. The driver writes to the tracked `docs/design/screenshots/` directory.
 
 ```bash
-flutter pub get
+flutter pub get --enforce-lockfile
 dart format --output=none --set-exit-if-changed lib test integration_test test_driver tool
 flutter analyze
 flutter test
@@ -103,8 +105,7 @@ flutter drive --driver=test_driver/integration_test.dart \
 flutter build apk --debug
 ```
 
-Optional deterministic local render previews:
-`flutter test tool/render_preview_test.dart` writes to `build/visual-previews/`.
+For local render previews, `flutter test tool/render_preview_test.dart` writes to the ignored `build/visual-previews/` directory.
 
 ## Preview boundaries and visual differences
 

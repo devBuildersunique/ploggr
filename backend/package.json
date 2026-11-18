@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": "^22.13.0 || >=24"
+    "node": "^22.22.3 || ^24.15.0 || >=26"
   },
   "scripts": {
     "build": "nest build",
@@ -11,6 +11,7 @@
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main.js",
     "lint": "eslint .",
+    "check": "npm run lint && tsc --noEmit && npm test",
     "test": "jest --runInBand",
     "test:watch": "jest --watch",
     "test:e2e": "jest --runInBand --testPathPattern=e2e-spec",

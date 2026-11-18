@@ -16,6 +16,7 @@ import '../features/challenges/challenges_page.dart';
 import '../features/badges/badges_page.dart';
 import '../features/community/community_page.dart';
 import '../features/profile/profile_page.dart';
+import '../features/connection/connection_page.dart';
 import 'app_routes.dart';
 
 /// Override in tests to open a specific route without changing production flow.
@@ -64,9 +65,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (_, _) => const CommunityPage(),
       ),
       GoRoute(path: AppRoutes.profile, builder: (_, _) => const ProfilePage()),
-      for (final section in ['activity', 'saved', 'settings', 'help', 'about'])
+      GoRoute(
+        path: AppRoutes.connection,
+        builder: (_, _) => const ConnectionPage(),
+      ),
+      for (final section in ProfileSection.values)
         GoRoute(
-          path: '/profile/$section',
+          path: section.path,
           builder: (_, _) => ProfileDetailPage(section: section),
         ),
     ],

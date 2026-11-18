@@ -1,23 +1,21 @@
-# Bundled visual assets
+# Flutter visual assets
 
-All four PNGs were generated with the built-in imagegen tool for this project,
-then copied into the repository. They are illustrations/sample photography, not
-reference screenshots. The original orange logo is retained on disk but is no
-longer used by the green design. No network images are loaded at runtime.
+The Flutter preview bundles its font and four PNGs. The illustrations and sample photograph were generated for this project. The generation prompts below are retained as provenance. Reference screenshots are kept with the [visual validation record](validation.md).
 
-- `assets/images/illustrations/splash.png`: splash park and plogger silhouettes.
-- `assets/images/illustrations/plogging.png`: first onboarding illustration.
-- `assets/images/illustrations/together.png`: third onboarding illustration.
-- `assets/images/demo/litter.png`: explicitly labeled sample camera/report/post photo.
-- `assets/fonts/NunitoSans.ttf`: locally bundled Google Fonts Nunito Sans variable
-  font, licensed under the accompanying `assets/fonts/OFL.txt`.
-- `lib/shared/widgets/eco_art.dart`: Flutter-drawn wordmark, foliage, landscape,
-  campus, trophy, badges, and fictional avatars.
-- `lib/shared/widgets/preview_map.dart`: locally drawn, non-geographic street map.
+| Asset | Use |
+| --- | --- |
+| [Splash artwork](../../assets/images/illustrations/splash.png) | Park scene and plogger silhouettes. |
+| [Plogging illustration](../../assets/images/illustrations/plogging.png) | First onboarding page. |
+| [Together illustration](../../assets/images/illustrations/together.png) | Third onboarding page. |
+| [Sample litter photograph](../../assets/images/demo/litter.png) | Preview camera, report and community photo. |
+| [Nunito Sans variable font](../../assets/fonts/NunitoSans.ttf) | Bundled Google Fonts family. Keep its [font license](../../assets/fonts/OFL.txt) with the font. |
+| [Flutter artwork](../../lib/shared/widgets/eco_art.dart) | Wordmark, foliage, landscapes, trophies, badges and avatars. |
+| [Preview map](../../lib/shared/widgets/preview_map.dart) | Locally drawn streets, markers and sample route. |
 
 ## Generation prompts
 
 ### Plogging
+
 Use case: illustration-story. Asset type: locally bundled onboarding illustration
 for the Ploggr mobile environmental fitness app. Create one polished flat
 vector-style editorial illustration, landscape 3:2 composition: a young South
@@ -32,6 +30,7 @@ No text, no UI, no borders, no device frame, no watermark. Match the environment
 vector illustration style of a professionally designed eco fitness onboarding screen.
 
 ### Together
+
 Use case: illustration-story. Asset type: landscape 3:2 onboarding art for an
 environmental community mobile app. One elegant flat vector-style illustration
 of four human hands entering diagonally from the bottom and sides, cupped
@@ -45,6 +44,7 @@ gradients. Friendly professional aesthetic, generous breathing space. No text,
 no UI, no frame, no watermark.
 
 ### Sample litter photo
+
 Use case: photorealistic-natural. Asset type: sample litter photograph for a
 clearly marked demo camera in an environmental cleanup mobile app. Portrait 2:3
 photograph, close low camera view of one discarded slightly crushed clear plastic
@@ -57,6 +57,7 @@ gravel and transparent plastic. No people, no text, no branding, no watermark,
 no UI overlays, no borders.
 
 ### Splash footer
+
 Use case: illustration-story. Asset type: footer illustration for a mobile
 environmental fitness splash screen. Landscape 3:2 vector-style illustration:
 two small dark forest-green silhouettes of adult ploggers walking toward the

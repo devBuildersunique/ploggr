@@ -1,24 +1,21 @@
-# Ploggr reference redesign
+# Flutter preview design
 
-## Repository audit
-The original app has seven routes: splash, login, signup, home, leaderboard,
-session, summary. ProviderScope and a disposable Riverpod GoRouter provider
-establish the application boundary. Screens hold local mock state; there is
-no authentication, camera, GPS, map, or API integration to migrate. The theme
-is empty, orange/brown styling is duplicated, two navigation actions are
-inactive, and only the original orange logo is bundled. Backend is out of scope.
+This design record describes the 18-screen redesign delivered on 17 November 2026. For the current app, API and database setup, start with the [project README](../../README.md). For the results and images from the design review, see [visual validation](validation.md).
+
+## Starting point
+
+Before the redesign, the app had seven routes covering splash, login, signup, home, leaderboard, session and summary. Riverpod and go_router were in place. The screens held local mock state, the theme was empty, orange and brown styling was duplicated, and two navigation actions were inactive. The old splash logo was the only bundled artwork.
 
 ## Implementation stages
-1. Preserve app entry point, router provider, route constants, existing screen
-   classes, and feature structure. Centralize tokens, theme, and shared widgets.
-2. Implement splash, three onboarding pages, and keyboard-safe auth previews.
-3. Implement home, sample camera, litter details/map, session and summary.
-4. Implement nearby clean-ups, challenges, leaderboard, badges, community,
-   and profile with typed fixtures and Riverpod application controllers.
-5. Verify all routes, interactions, compact/standard/large layouts and large
-   text; run Android, capture screens, inspect visually, analyze, test, build APK.
+
+1. Kept the app entry point, central routes and feature directories. Moved shared colors, typography, theme and widgets into the design system.
+2. Implemented the splash, three onboarding pages and keyboard-safe authentication previews.
+3. Added the home, sample camera, litter report, map, session and summary screens.
+4. Built the cleanup, challenge, leaderboard, badge, community and profile screens with typed fixtures and Riverpod controllers.
+5. Checked navigation, interactions, compact layouts and large text, then captured the Android screens and built the debug APK.
 
 ## Reference screen interpretation
+
 | Screen | Composition |
 | --- | --- |
 | Splash | Botanical corner, dark green wordmark, two-line motto, layered park |
@@ -40,10 +37,6 @@ inactive, and only the original orange logo is bundled. Backend is out of scope.
 | Community | Feed/My Posts, avatar rows, photo post, reactions, compose |
 | Profile | Avatar/name/handle, three stats, five destinations, bottom nav |
 
-## Decisions
-Flutter, its existing material_ui package, Riverpod, and go_router are preserved. Tokens and common components are centralized.
-Feature controllers own preview state. No credentials are stored. All artwork
-and fonts are bundled; maps are local illustrative canvases. A Preview label
-and contextual notices identify simulated services. SafeArea, scrollable
-forms, constrained widths, wrapping controls, and 48dp targets support phones
-and enlarged text. Device frames and fake status bars are excluded.
+## Design decisions
+
+Feature controllers own preview state. The app bundles artwork and fonts, draws sample maps locally, and identifies simulated services in the UI. Safe areas, scrollable forms, constrained widths, wrapping controls and 48 dp targets support phones and enlarged text. [Asset provenance](assets.md)

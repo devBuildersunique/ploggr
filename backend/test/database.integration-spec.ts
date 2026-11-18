@@ -67,6 +67,9 @@ describe('PostgreSQL / PostGIS foundation (isolated Compose database)', () => {
       await app.init();
       expect(applicationSource.isInitialized).toBe(true);
       await request(app.getHttpServer()).get('/api/health').expect(200, { status: 'ok' });
+      await request(app.getHttpServer()).get('/api/health/ready')
+        .expect('Cache-Control', 'no-store')
+        .expect(200, { status: 'ok', database: 'up', postgis: 'up' });
     } finally {
       await app.close();
     }
