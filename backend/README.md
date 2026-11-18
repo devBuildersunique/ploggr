@@ -93,7 +93,8 @@ the committed `.env.example` contains only non-secret defaults.
 | `DB_NAME` | `ploggr` | Development database created on first initialization |
 | `DB_USER` | Required | Application role created on first initialization |
 | `DB_PASSWORD` | Required | Application password, used verbatim |
-| `POSTGRES_PASSWORD` | Required by Compose | Administrator password; never used by NestJS |
+| `POSTGRES_PASSWORD` | Required by Compose | Administrator password used for database initialization |
+| `COMPOSE_PROJECT_NAME` | Compose directory name | Optional isolated project and volume name for parallel checkouts |
 
 `.env.example` credentials are **development examples only**. Set your own values
 in `.env`; never commit actual credentials. `DB_USER` must differ from the

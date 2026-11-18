@@ -11,7 +11,7 @@ git clone https://github.com/devBuildersunique/ploggr.git
 cd ploggr
 ```
 
-For M1.8 review, use the following **instead of** the ordinary clone. Set `M18_SOURCE` to the local checkout path or fork URL containing the branch. M1.8 builds on `feature/m1.7-stack-communication` at `e6abeeb`.
+For M1.8 review, use the following clone command. Set `M18_SOURCE` to the local checkout path or fork URL containing the branch. M1.8 builds on `feature/m1.7-stack-communication` at `e6abeeb`.
 
 ```bash
 git clone --branch feature/m1.8-foundation-validation "$M18_SOURCE" ploggr-m18
@@ -49,7 +49,7 @@ The first request returns `{"status":"ok"}`. The second returns `{"status":"ok",
 
 - **Android emulator.** Use `flutter devices` to find its ID. Run `flutter run -d <emulator-id> --dart-define=API_BASE_URL=http://10.0.2.2:3000/api/`. For a USB device, use adb reverse and the same loopback configuration as Linux. [Device and recovery guide](docs/development/connection-check.md)
 - **Offline preview.** Run `flutter pub get --enforce-lockfile`, then `flutter run` without defines. This needs only Flutter and a supported device. The connection screen shows **No server configured**.
-- **Configuration.** The API and database bind to loopback by default. Process variables override `backend/.env`. Flutter reads the public `API_BASE_URL` at build time. If ports are occupied, change `DB_PORT` or `PORT` before startup and match the API port in the Flutter JSON. Keep credentials in the ignored backend configuration. [Configuration reference](docs/development/configuration.md)
+- **Configuration.** The API and database bind to loopback by default. Process variables override `backend/.env`. Flutter reads the public `API_BASE_URL` at build time. If ports are occupied, change `DB_PORT` or `PORT` before startup and match the API port in the Flutter JSON. When running two checkouts at once, also choose a distinct `COMPOSE_PROJECT_NAME` in each new backend environment file so each database gets its own volume. Keep credentials in the ignored backend configuration. [Configuration reference](docs/development/configuration.md)
 - **Shutdown.** Quit Flutter with `q`, stop Nest with Ctrl+C, and run `npm run db:down` from `backend/`. The named volume retains your data. [Database operations and troubleshooting](backend/README.md)
 
 ## How the project fits together
@@ -66,7 +66,7 @@ Flutter screen → Riverpod controller → Dio → GET /api/health/ready
 | --- | --- |
 | Flutter entry and navigation | `lib/main.dart` validates configuration and creates the Riverpod scope. `lib/app.dart` mounts the router. Add paths and screens in `lib/routes/`. |
 | Screens, state and networking | Keep screens, controllers, and services with their feature in `lib/features/`. The connection feature shows the full HTTP path. Shared configuration, networking, preview data and theme live in `lib/core/`, reusable widgets in `lib/shared/widgets/`. |
-| Backend | Register feature modules from `backend/src/modules/` in `AppModule`. Controllers expose routes under `/api`; services own application logic. Common bootstrap, validation and exception handling also apply in HTTP tests. |
+| Backend | Register feature modules from `backend/src/modules/` in `AppModule`. Controllers expose routes under `/api`. Services own application logic. Common bootstrap, validation and exception handling also apply in HTTP tests. |
 | Database | Compose provisions the database and application role. TypeORM options are shared by Nest and the CLI. Create and register explicit migrations in `backend/src/database/`. Schema synchronization is disabled. [Migration guide](backend/docs/maintenance.md#migrations) |
 | Tests and assets | Flutter unit/widget tests are in `test/`, device checks in `integration_test/`, backend tests beside their modules and in `backend/test/`. Bundled artwork and the font live in `assets/`. [Design notes](docs/design/implementation.md) · [Asset provenance](docs/design/assets.md) |
 
