@@ -18,6 +18,7 @@ abstract final class AppRoutes {
   static const activity = '/profile/activity';
   static const saved = '/profile/saved';
   static const settings = '/profile/settings';
+  static const connection = '/profile/settings/connection';
   static const help = '/profile/help';
   static const about = '/profile/about';
 }

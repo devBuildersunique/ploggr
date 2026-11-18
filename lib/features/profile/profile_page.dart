@@ -389,12 +389,20 @@ class _ProfileDetailPageState extends ConsumerState<ProfileDetailPage> {
             Text('You’re exploring the preview', style: AppText.heading),
             SizedBox(height: 8),
             Text(
-              'Authentication, notifications, live tracking, and cloud storage are not connected. No personal details leave this app.',
+              'Your preview activity and profile details stay on this device. '
+              'A connection check contacts the configured server. '
+              'Authentication, notifications, live tracking, and cloud storage are not connected.',
             ),
           ],
         ),
       ),
       const SizedBox(height: 16),
+      ListTile(
+        leading: const Icon(Icons.network_check, color: AppColors.primary),
+        title: const Text('Connection check'),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => openPage(context, AppRoutes.connection),
+      ),
       ListTile(
         leading: const Icon(Icons.slideshow_rounded, color: AppColors.primary),
         title: const Text('Replay onboarding'),

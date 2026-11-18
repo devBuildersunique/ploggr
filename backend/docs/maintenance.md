@@ -1,9 +1,10 @@
 # Backend maintainer guide
 
-Use this guide to review M1.5/M1.6 or extend the backend. New contributors should
+Use this guide to review M1.5–M1.7 or extend the backend. New contributors should
 start with [setup and verification](../README.md).
 
 [M1.5 review checklist](#m15-review-checklist) · [M1.6 review checklist](#m16-review-checklist) ·
+[M1.7 review checklist](#m17-review-checklist) ·
 [Architecture](#architecture) ·
 [Migrations](#migrations) · [Structure](#structure) ·
 [API conventions](#request-and-response-conventions)
@@ -12,7 +13,7 @@ start with [setup and verification](../README.md).
 
 [M1.5 / issue #6](https://github.com/devBuildersunique/ploggr/issues/6) establishes
 database infrastructure. Authentication, User/Plog/Challenge/Hotspot tables,
-Flutter integration, and production deployment are future work.
+domain persistence, and production deployment are outside the M1.5 scope.
 
 Check out the proposed branch. From the repository root:
 
@@ -71,7 +72,7 @@ and patch versions may change; a new review must rerun the commands above.
 development configuration on top of M1.5. The
 [configuration guide](../../docs/development/configuration.md) documents its
 workflow and expected behavior. Flutter still uses offline preview data; network
-integration belongs to M1.7.
+integration is covered by the M1.7 checklist below.
 
 | Requirement | Review | Verification |
 | --- | --- | --- |
@@ -112,7 +113,81 @@ volume were removed successfully.
 
 This run used Flutter 3.50.0 / Dart 3.14.0 and the Node.js/Docker versions listed
 in the M1.5 record above. It verifies configuration and backend/database behavior;
-mobile HTTP connectivity remains for M1.7.
+mobile HTTP connectivity is covered by M1.7's separate validation below.
+
+## M1.7 review checklist
+
+[M1.7 / issue #8](https://github.com/devBuildersunique/ploggr/issues/8) connects
+Flutter, Dio, NestJS, and PostgreSQL/PostGIS through a manual Settings check.
+Start with the [connection guide](../../docs/development/connection-check.md),
+including the laptop, USB phone, and controlled outage instructions.
+
+| Requirement | Review | Verification |
+| --- | --- | --- |
+| Configured Dio client | [Client provider](../../lib/core/network/api_client_provider.dart) | Configured base URL/prefix, bounded timeouts, owned-client cleanup |
+| Backend queries PostgreSQL/PostGIS | [Health service](../src/modules/health/health.service.ts) | Read-only query, connectivity/PostGIS/SRID assertions, real database readiness test |
+| Flutter handles success and failures | [Connection feature](../../lib/features/connection/connection_service.dart) and Settings screen | Payload validation, HTTP/transport/timeouts, retry, missing configuration, cancellation |
+| Native phone connection | Internet permission and debug-only Android HTTP policy | USB-authorized physical phone and `adb reverse`; native integration test |
+| Complete real stack | [Native integration test](../../integration_test/connection_check_test.dart) | Real Settings button → Dio → HTTP → PostgreSQL/PostGIS on Linux and Android |
+| Foundation scope preserved | Existing entities/migrations and preview data | No new tables, authentication, or domain persistence |
+
+### Readiness contract
+
+`GET /api/health` remains the process check and returns `{"status":"ok"}` without
+querying PostgreSQL. `GET /api/health/ready` performs a fresh, read-only query using
+the existing TypeORM pool and its five-second connection/query/statement limits.
+It checks `SELECT 1`, the PostGIS version function, and an SRID 4326 operation in
+one statement. No version strings, SQL diagnostics, or credentials are returned.
+
+Readiness success is HTTP `200`, `Cache-Control: no-store`, and:
+
+```json
+{"status":"ok","database":"up","postgis":"up"}
+```
+
+Any failed query/assertion becomes HTTP `503` with the existing error envelope.
+The filter intentionally retains its generic server-error message. Flutter maps
+the status and does not parse error messages or expose raw exceptions. Another
+2xx payload is not sufficient for a green connection result.
+
+### Checks
+
+From the repository root, run `flutter analyze` and `flutter test`. Service tests
+exercise real Dio decoding with an in-memory adapter; widget tests substitute
+only the connection service and verify screen state/navigation. Neither ordinary
+suite needs network services. Run the existing backend command chain above;
+HTTP tests override the DataSource while the isolated database suite also calls
+the readiness endpoint against real PostgreSQL/PostGIS.
+
+Run the opt-in native test against a ready stack on both Linux and the authorized
+Android phone, following the [guide](../../docs/development/connection-check.md#automated-checks).
+For the outage case, stop the test database after backend startup and add
+`--dart-define=EXPECT_DATABASE_UNAVAILABLE=true` to that test command. Restart
+PostgreSQL and rerun without the flag for recovery. This declaration is test-only.
+
+The M1.7 branch starts at M1.6 commit `2276d42`; review its incremental changes
+against that boundary while prior milestones are pending. Rebase only M1.7 work
+onto upstream `main` once its dependencies have merged before submitting its PR.
+
+### M1.7 recorded validation
+
+On November 18, 2026, Flutter analysis and all 180 ordinary Flutter tests passed,
+including 27 connection service/screen tests. Backend build, lint, TypeScript
+checking, all 45 unit/HTTP tests, and all six isolated database integration tests
+passed. The real database suite also verified the readiness endpoint.
+
+The opt-in native test passed on Linux and on a physical Android phone, model
+`2312DRA50I`, running Android 16 (API 36), connected over USB with `adb reverse`.
+The phone completed success → database unavailable → success across a controlled
+PostgreSQL stop/restart. Linux also verified the success and unavailable screens.
+During the outage the same API process returned `200` for `/api/health` and `503`
+for `/api/health/ready`; after restart readiness returned `200` without restarting
+NestJS. The live tests used a separate disposable database and API port.
+
+This run used Flutter 3.50.0, Dart 3.14.0, Dio 5.11.1, Node.js 26.13.1, Docker
+29.9.2, PostgreSQL 18.7, and PostGIS 3.7.0. Documentation links/anchors, shell/JSON
+examples, Android XML, and the debug-only placement of the HTTP policy were
+checked. The temporary services and test USB forwarding were cleaned up afterward.
 
 ## Architecture
 
@@ -239,7 +314,8 @@ test/
 
 Add future features under `src/modules/<feature>/` and import their module in
 `AppModule`. Keep controllers, DTOs, and any required services with their feature;
-put reusable infrastructure in `common/`. Health is static and needs no service.
+put reusable infrastructure in `common/`. The health controller delegates live
+dependency checks to its service while keeping the process check static.
 The server and HTTP tests use the same `configureApp` function.
 
 ## Request and response conventions

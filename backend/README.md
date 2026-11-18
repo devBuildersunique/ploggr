@@ -4,6 +4,8 @@ NestJS TypeScript API foundation with PostgreSQL/PostGIS infrastructure for
 [M1.5 / issue #6](https://github.com/devBuildersunique/ploggr/issues/6).
 M1.6 adds consistent environment-file loading and public Flutter configuration;
 see the [configuration guide](../docs/development/configuration.md).
+M1.7 adds a live database readiness endpoint used by Flutter's manual Settings
+check; see the [connection guide](../docs/development/connection-check.md).
 Run NestJS on the host and the database in Docker Compose, independently of Flutter.
 No domain entities or business tables are introduced by this milestone.
 
@@ -149,6 +151,19 @@ Adjust the host/port if overridden. This endpoint checks that the API process
 can serve requests; it does not check external dependencies. You can also open
 `http://127.0.0.1:3000/api/health` in a browser. The `/api` prefix by itself is not
 a page; use `/api/health`.
+
+For a live PostgreSQL/PostGIS check through HTTP:
+
+```bash
+curl --fail-with-body -i http://127.0.0.1:3000/api/health/ready
+```
+
+Expected: HTTP `200`, `Cache-Control: no-store`, and
+`{"status":"ok","database":"up","postgis":"up"}`. A failed readiness query returns
+HTTP `503` in the existing error envelope, without driver details or versions.
+The process check continues returning `200` when PostgreSQL becomes unavailable
+after backend startup. Follow the [connection guide](../docs/development/connection-check.md)
+to verify both paths from the Linux or Android app.
 
 To verify the running development database separately:
 

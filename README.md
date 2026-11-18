@@ -16,7 +16,9 @@ The preview includes camera/report/map flows, a pauseable sample plogging
 session, session summaries, clean-ups, challenges, rankings, badges, a local
 community feed, and an editable profile. Saved sessions update your impact;
 reports, joins, posts, comments, and profile changes last until the app restarts.
-No authentication, GPS, camera, live maps, AI detection, or backend calls are made.
+Authentication, GPS, camera, live maps, and AI detection remain simulated.
+Settings includes an optional manual connection check against a configured backend;
+preview activity and profile details stay on the device.
 
 See the [implementation notes](docs/design/implementation.md),
 [asset provenance and prompts](docs/design/assets.md), and
@@ -119,9 +121,11 @@ runs in Docker Compose; the backend uses TypeORM and explicit migrations.
 
 The frontend design preview, NestJS API foundation (M1.4), and PostgreSQL/PostGIS
 database foundation (M1.5) are implemented. The backend connects to PostgreSQL,
-uses explicit TypeORM migrations, and provides a process health endpoint.
-Flutter currently uses offline preview data; mobile-to-backend integration,
-authentication, domain persistence, and real device services remain future work.
+uses explicit TypeORM migrations, and provides process and database readiness
+endpoints. M1.6 supplies environment configuration; M1.7 connects Flutter to the
+backend/database through a manual Settings check. Feature screens still use
+preview data; authentication, domain persistence, and real device services remain
+future work. See the [connection guide](docs/development/connection-check.md).
 
 ---
 

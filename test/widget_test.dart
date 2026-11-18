@@ -33,6 +33,7 @@ const screenRoutes = [
   '/profile/activity',
   '/profile/saved',
   '/profile/settings',
+  '/profile/settings/connection',
   '/profile/help',
   '/profile/about',
 ];

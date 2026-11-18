@@ -13,14 +13,15 @@ an API address or setting up a new development environment.
 | Work | Configuration | Required services |
 | --- | --- | --- |
 | Run the existing Flutter offline preview | None; use `flutter run` | None |
-| Supply a future API target to Flutter | Ignored `config/development.local.json` | None for configuration validation |
+| Configure Flutter's manual connection check | Ignored `config/development.local.json` | Backend and database for live checking |
 | Run the backend against the development database | Ignored `backend/.env` or process variables | PostgreSQL/PostGIS via Docker Compose |
 | Run backend unit/HTTP tests | Explicit test configuration supplied by the tests | None |
 | Run database integration tests | Isolated configuration supplied by the runner | Docker access |
 
-M1.6 validates and exposes Flutter's API URL. It does not make HTTP requests or
-switch screens away from preview data. The Dio client, mobile connectivity,
-platform HTTP permissions, CORS, and the end-to-end health flow belong to M1.7.
+M1.6 established Flutter's API configuration. M1.7 adds a Dio client and a manual
+**Settings → Connection check** that queries the backend and PostgreSQL/PostGIS.
+See the [connection guide](connection-check.md) for laptop and Android USB setup.
+Other screens continue using local preview data. No requests run automatically.
 
 ## Backend setup and precedence
 
@@ -69,12 +70,12 @@ flutter pub get
 [ -f config/development.local.json ] || cp config/development.example.json config/development.local.json
 ```
 
-Edit your local JSON for the intended device. The committed example targets an
-Android Emulator:
+Edit your local JSON for the intended device. The current example targets the
+laptop or an Android phone using USB forwarding:
 
 ```json
 {
-  "API_BASE_URL": "http://10.0.2.2:3000/api/"
+  "API_BASE_URL": "http://127.0.0.1:3000/api/"
 }
 ```
 
@@ -98,13 +99,14 @@ No additional package, asset declaration, or native build flavor is needed.
 - Supplied: require a nonempty absolute HTTP/HTTPS URL with a hostname and valid
   port, without credentials, query parameters, fragments, or whitespace.
 - A missing trailing slash is added. Include the backend's `/api/` prefix in the
-  configured address so a future relative `health` route resolves correctly.
+  configured address so the relative `health/ready` route resolves correctly.
 - Invalid supplied values throw a `FormatException` before the widget tree is
   created. The message names `API_BASE_URL` without echoing the supplied value.
 
 The immutable `AppConfig` is available through `appConfigProvider`. `main()`
 validates and installs it at startup; tests can override the provider with
-explicit values. A configured URL alone does not enable network access.
+explicit values. A configured URL allows the manual check; it does not trigger
+requests at startup.
 
 ## Device addresses
 
@@ -114,15 +116,16 @@ the backend port and Flutter URL together when choosing another port.
 | Flutter target | `API_BASE_URL` | Backend listening address |
 | --- | --- | --- |
 | Linux desktop on the development computer | `http://127.0.0.1:3000/api/` | Default `HOST=127.0.0.1` |
+| Physical Android phone with `adb reverse tcp:3000 tcp:3000` | `http://127.0.0.1:3000/api/` | Default `HOST=127.0.0.1` |
 | Android Emulator on that computer | `http://10.0.2.2:3000/api/` | Default `HOST=127.0.0.1` |
 | Physical device on the same LAN | `http://<computer-LAN-IP>:3000/api/` | Set `HOST=0.0.0.0` and restart NestJS |
 
 For a physical device, replace the placeholder with the computer's actual LAN
 address and ensure the local network/firewall permits the backend port. `0.0.0.0`
 is a listening address, not a destination URL. A device's `127.0.0.1` points at
-that device, not at the development computer. Mobile HTTP policy and actual
-device connectivity will be configured and verified in M1.7; this table selects
-addresses and does not claim those requests have been tested in M1.6.
+that device, unless USB forwarding maps the API port. M1.7 adds Android debug
+HTTP policy and validates laptop/USB-phone connectivity. The emulator and LAN
+rows are alternative addresses, not a claim those network paths were tested.
 
 ## Public configuration and secrets
 
@@ -165,4 +168,5 @@ npm run build && npm run lint && npx tsc --noEmit && npm test && npm run test:da
 
 See the [M1.6 review checklist](../../backend/docs/maintenance.md#m16-review-checklist)
 for the evidence expected before merging. These checks validate configuration and
-preserve the M1.5 database foundation; Flutter-to-backend requests remain M1.7.
+preserve the M1.5 database foundation. For M1.7's live Flutter-to-backend test,
+use the [connection guide](connection-check.md#automated-checks).
